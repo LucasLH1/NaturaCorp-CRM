@@ -16,6 +16,10 @@ class NotificationInterne extends Model
         'user_id',
     ];
 
+    protected $casts = [
+        'est_lu' => 'boolean',
+    ];
+
     public function utilisateur()
     {
         return $this->belongsTo(User::class, 'user_id');
