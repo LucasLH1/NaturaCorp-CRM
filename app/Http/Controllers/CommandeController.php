@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Commande;
+use App\Models\Pharmacie;
 use Illuminate\Http\Request;
 
 class CommandeController extends Controller
@@ -12,7 +13,9 @@ class CommandeController extends Controller
      */
     public function index()
     {
-        //
+        return view('commandes.index', [
+            'commandes' => Commande::with('pharmacie')->get()
+        ]);
     }
 
     /**
@@ -20,7 +23,9 @@ class CommandeController extends Controller
      */
     public function create()
     {
-        //
+        return view('commandes.create', [
+            'pharmacies' => Pharmacie::all()
+        ]);
     }
 
     /**
@@ -28,7 +33,17 @@ class CommandeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'pharmacie_id' => 'required|exists:pharmacies,id',
+            'date_commande' => 'required|date',
+            'statut' => 'required|in:validée,en_cours,livrée',
+            'quantite' => 'required|integer',
+            'tarif_unitaire' => 'required|numeric',
+            'observations' => 'nullable|string',
+        ]);
+
+        Commande::create($validated);
+        return redirect()->route('commandes.index');
     }
 
     /**
@@ -44,7 +59,10 @@ class CommandeController extends Controller
      */
     public function edit(Commande $commande)
     {
-        //
+        return view('commandes.edit', [
+            'commande' => $commande,
+            'pharmacies' => Pharmacie::all()
+        ]);
     }
 
     /**
@@ -52,7 +70,17 @@ class CommandeController extends Controller
      */
     public function update(Request $request, Commande $commande)
     {
-        //
+        $validated = $request->validate([
+            'pharmacie_id' => 'required|exists:pharmacies,id',
+            'date_commande' => 'required|date',
+            'statut' => 'required|in:validée,en_cours,livrée',
+            'quantite' => 'required|integer',
+            'tarif_unitaire' => 'required|numeric',
+            'observations' => 'nullable|string',
+        ]);
+
+        $commande->update($validated);
+        return redirect()->route('commandes.index');
     }
 
     /**
@@ -60,6 +88,7 @@ class CommandeController extends Controller
      */
     public function destroy(Commande $commande)
     {
-        //
+        $commande->delete();
+        return redirect()->route('commandes.index');
     }
 }

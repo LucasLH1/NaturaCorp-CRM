@@ -12,7 +12,9 @@ class JournalActiviteController extends Controller
      */
     public function index()
     {
-        //
+        return view('journal.index', [
+            'activites' => JournalActivite::with('utilisateur')->latest()->get()
+        ]);
     }
 
     /**
@@ -60,6 +62,7 @@ class JournalActiviteController extends Controller
      */
     public function destroy(JournalActivite $journalActivite)
     {
-        //
+        $journalActivite->delete();
+        return redirect()->route('journal.index');
     }
 }

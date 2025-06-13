@@ -12,7 +12,9 @@ class NotificationInterneController extends Controller
      */
     public function index()
     {
-        //
+        return view('notifications.index', [
+            'notifications' => NotificationInterne::with('utilisateur')->latest()->get()
+        ]);
     }
 
     /**
@@ -60,6 +62,13 @@ class NotificationInterneController extends Controller
      */
     public function destroy(NotificationInterne $notificationInterne)
     {
-        //
+        $notificationInterne->delete();
+        return redirect()->route('notifications.index');
+    }
+
+    public function markAsRead(NotificationInterne $notificationInterne)
+    {
+        $notificationInterne->update(['est_lu' => true]);
+        return redirect()->back();
     }
 }

@@ -12,7 +12,9 @@ class RapportController extends Controller
      */
     public function index()
     {
-        //
+        return view('rapports.index', [
+            'rapports' => Rapport::with('utilisateur')->latest()->get()
+        ]);
     }
 
     /**
@@ -36,7 +38,7 @@ class RapportController extends Controller
      */
     public function show(Rapport $rapport)
     {
-        //
+        return response()->download(storage_path('app/' . $rapport->chemin_fichier));
     }
 
     /**
@@ -60,6 +62,7 @@ class RapportController extends Controller
      */
     public function destroy(Rapport $rapport)
     {
-        //
+        $rapport->delete();
+        return redirect()->route('rapports.index');
     }
 }
