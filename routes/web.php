@@ -8,7 +8,8 @@ use App\Http\Controllers\{DashboardController,
     DocumentJointController,
     NotificationInterneController,
     RapportController,
-    JournalActiviteController};
+    JournalActiviteController,
+    UserController};
 
 Route::get('/', function () {
     return view('welcome');
@@ -24,6 +25,7 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    Route::resource('users', UserController::class);
     Route::resource('pharmacies', PharmacieController::class);
     Route::resource('commandes', CommandeController::class);
     Route::resource('documents', DocumentJointController::class)->names('documents');
