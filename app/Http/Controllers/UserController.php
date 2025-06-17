@@ -15,7 +15,9 @@ class UserController extends Controller
     public function index()
     {
         $users = User::with('roles')->get();
-        return view('users.index', compact('users'));
+        $roles = Role::pluck('name');
+
+        return view('users.index', compact('users', 'roles'));
     }
 
     /**
@@ -73,6 +75,11 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
+
+        $request->merge([
+            'is_active' => $request->has('is_active'),
+        ]);
+
         $validated = $request->validate([
             'name' => 'required|string',
             'email' => 'required|email|unique:users,email,' . $user->id,
