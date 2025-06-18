@@ -16,7 +16,9 @@ class DatabaseSeeder extends Seeder
         $this->call([
 //            RoleSeeder::class,
 //            DashboardDataSeeder::class,
-            CommandeSeeder::class,
+//            CommandeSeeder::class,
+            BaseDemoSeeder::class,
+
         ]);
     }
 
