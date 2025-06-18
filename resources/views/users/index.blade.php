@@ -22,36 +22,43 @@
         </div>
 
         <!-- Tableau -->
-        <table class="w-full text-sm border rounded">
-            <thead class="bg-gray-100 text-left">
-            <tr>
-                <th class="p-2">Nom</th>
-                <th class="p-2">Email</th>
-                <th class="p-2">Rôle</th>
-                <th class="p-2">Statut</th>
-                <th class="p-2 text-right">Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            <template x-for="user in filteredUsers()" :key="user.id">
-                <tr class="border-t">
-                    <td class="p-2" x-text="user.name"></td>
-                    <td class="p-2" x-text="user.email"></td>
-                    <td class="p-2" x-text="user.roles[0]?.name ?? '-'"></td>
-                    <td class="p-2">
-                            <span :class="user.is_active ? 'text-green-600' : 'text-red-600'"
-                                  x-text="user.is_active ? 'Actif' : 'Inactif'"></span>
-                    </td>
-                    <td class="p-2 text-right">
-                        <button @click="modalMode = 'edit'; editingUser = user; modalOpen = true"
-                                class="text-blue-600 hover:underline">
-                            Modifier
-                        </button>
-                    </td>
+        <x-table>
+            <x-slot name="head">
+                <tr>
+                    <th class="px-4 py-3 text-left">Nom</th>
+                    <th class="px-4 py-3 text-left">Email</th>
+                    <th class="px-4 py-3 text-left">Rôle</th>
+                    <th class="px-4 py-3 text-left">Statut</th>
+                    <th class="px-4 py-3 text-right">Actions</th>
                 </tr>
-            </template>
-            </tbody>
-        </table>
+            </x-slot>
+
+            <x-slot name="body">
+                <template x-for="user in filteredUsers()" :key="user.id">
+                    <tr class="hover:bg-gray-50 transition-all">
+                        <td class="px-4 py-3" x-text="user.name"></td>
+                        <td class="px-4 py-3" x-text="user.email"></td>
+                        <td class="px-4 py-3" x-text="user.roles[0]?.name || '-'"></td>
+                        <td class="px-4 py-3">
+                    <span
+                        class="inline-block px-2 py-1 text-xs rounded-full font-medium"
+                        :class="user.is_active
+                            ? 'bg-green-50 text-green-700'
+                            : 'bg-red-50 text-red-600'"
+                        x-text="user.is_active ? 'Actif' : 'Inactif'"
+                    ></span>
+                        </td>
+                        <td class="px-4 py-3 text-right">
+                            <button @click="modalMode = 'edit'; editingUser = user; modalOpen = true"
+                                    class="text-blue-600 hover:underline text-sm font-medium">
+                                Modifier
+                            </button>
+                        </td>
+                    </tr>
+                </template>
+            </x-slot>
+        </x-table>
+
 
         <x-user-form-modal :roles="$roles" />
     </div>

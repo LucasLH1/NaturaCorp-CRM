@@ -19,37 +19,49 @@
             </button>
         </div>
 
-        <table class="w-full text-sm border rounded">
-            <thead class="bg-gray-100 text-left">
-            <tr>
-                <th class="p-2">Nom</th>
-                <th class="p-2">Email</th>
-                <th class="p-2">Téléphone</th>
-                <th class="p-2">Ville</th>
-                <th class="p-2">Statut</th>
-                <th class="p-2">Commercial</th>
-                <th class="p-2 text-right">Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            <template x-for="pharmacie in filteredPharmacies()" :key="pharmacie.id">
-                <tr class="border-t">
-                    <td class="p-2" x-text="pharmacie.nom"></td>
-                    <td class="p-2" x-text="pharmacie.email ?? '-'"></td>
-                    <td class="p-2" x-text="pharmacie.telephone ?? '-'"></td>
-                    <td class="p-2" x-text="pharmacie.ville"></td>
-                    <td class="p-2" x-text="pharmacie.statut"></td>
-                    <td class="p-2" x-text="pharmacie.commercial?.name ?? '-'"></td>
-                    <td class="p-2 text-right">
-                        <button @click="modalMode = 'edit'; editingPharmacie = pharmacie; modalOpen = true"
-                                class="text-blue-600 hover:underline">
-                            Modifier
-                        </button>
-                    </td>
+        <x-table>
+            <x-slot name="head">
+                <tr>
+                    <th class="px-4 py-3 text-left">Nom</th>
+                    <th class="px-4 py-3 text-left">Email</th>
+                    <th class="px-4 py-3 text-left">Téléphone</th>
+                    <th class="px-4 py-3 text-left">Ville</th>
+                    <th class="px-4 py-3 text-left">Statut</th>
+                    <th class="px-4 py-3 text-left">Commercial</th>
+                    <th class="px-4 py-3 text-right">Actions</th>
                 </tr>
-            </template>
-            </tbody>
-        </table>
+            </x-slot>
+
+            <x-slot name="body">
+                <template x-for="pharmacie in filteredPharmacies()" :key="pharmacie.id">
+                    <tr class="hover:bg-gray-50 transition-all">
+                        <td class="px-4 py-3" x-text="pharmacie.nom"></td>
+                        <td class="px-4 py-3" x-text="pharmacie.email || '-'"></td>
+                        <td class="px-4 py-3" x-text="pharmacie.telephone || '-'"></td>
+                        <td class="px-4 py-3" x-text="pharmacie.ville"></td>
+                        <td class="px-4 py-3">
+                    <span
+                        class="inline-block px-2 py-1 text-xs rounded-full font-medium"
+                        :class="{
+                            'bg-green-50 text-green-700': pharmacie.statut === 'client_actif',
+                            'bg-yellow-50 text-yellow-700': pharmacie.statut === 'prospect',
+                            'bg-gray-100 text-gray-700': pharmacie.statut === 'client_inactif',
+                        }"
+                        x-text="statutLabel(pharmacie.statut)"
+                    ></span>
+                        </td>
+                        <td class="px-4 py-3" x-text="pharmacie.commercial?.name || '-'"></td>
+                        <td class="px-4 py-3 text-right">
+                            <button @click="modalMode = 'edit'; editingPharmacie = pharmacie; modalOpen = true"
+                                    class="text-blue-600 hover:underline text-sm font-medium">
+                                Modifier
+                            </button>
+                        </td>
+                    </tr>
+                </template>
+            </x-slot>
+        </x-table>
+
 
         <x-pharmacie-form-modal :commerciaux="$commerciaux" />
     </div>
@@ -68,7 +80,21 @@
                         p.nom.toLowerCase().includes(this.search.toLowerCase()) ||
                         (p.ville && p.ville.toLowerCase().includes(this.search.toLowerCase()))
                     );
+                },
+
+                statutLabel(statut) {
+                    switch (statut) {
+                        case 'client_actif':
+                            return 'Actif';
+                        case 'client_inactif':
+                            return 'Inactif';
+                        case 'prospect':
+                            return 'Prospect';
+                        default:
+                            return statut;
+                    }
                 }
+
             }
         }
     </script>
