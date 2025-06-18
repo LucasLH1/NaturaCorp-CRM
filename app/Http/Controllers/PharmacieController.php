@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pharmacie;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class PharmacieController extends Controller
@@ -12,8 +13,12 @@ class PharmacieController extends Controller
      */
     public function index()
     {
+        $pharmacies = Pharmacie::with('commercial')->get();
+        $commerciaux = User::role('commercial')->get();
+
         return view('pharmacies.index', [
-            'pharmacies' => Pharmacie::with('commercial')->get()
+            'pharmacies' => $pharmacies,
+            'commerciaux' => $commerciaux,
         ]);
     }
 
@@ -32,7 +37,7 @@ class PharmacieController extends Controller
     {
         $validated = $request->validate([
             'nom' => 'required|string',
-            'siret' => 'nullable|string|unique:pharmacies',
+            'siret' => 'nullable|string|unique:pharmacies,siret',
             'email' => 'nullable|email',
             'telephone' => 'nullable|string',
             'adresse' => 'required|string',
@@ -44,6 +49,7 @@ class PharmacieController extends Controller
         ]);
 
         Pharmacie::create($validated);
+
         return redirect()->route('pharmacies.index');
     }
 
@@ -66,8 +72,10 @@ class PharmacieController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Pharmacie $pharmacie)
+    public function update(Request $request, $id)
     {
+        $pharmacie = Pharmacie::findOrFail($id);
+
         $validated = $request->validate([
             'nom' => 'required|string',
             'siret' => 'nullable|string|unique:pharmacies,siret,' . $pharmacie->id,
@@ -82,8 +90,10 @@ class PharmacieController extends Controller
         ]);
 
         $pharmacie->update($validated);
+
         return redirect()->route('pharmacies.index');
     }
+
 
     /**
      * Remove the specified resource from storage.

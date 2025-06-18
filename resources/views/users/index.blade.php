@@ -10,6 +10,7 @@
     <div class="p-6 bg-white shadow rounded"
          x-data="initUserTable(window.usersFromLaravel)">
 
+
         <!-- Barre de recherche + bouton ajouter -->
         <div class="flex justify-between items-center mb-4">
             <input type="text" x-model="search" placeholder="Rechercher..."
