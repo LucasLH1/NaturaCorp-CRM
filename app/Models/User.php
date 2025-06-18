@@ -48,4 +48,10 @@ class User extends Authenticatable
             'is_active' => 'boolean',
         ];
     }
+
+    public function commandes()
+    {
+        return $this->hasMany(Commande::class);
+    }
+
 }
