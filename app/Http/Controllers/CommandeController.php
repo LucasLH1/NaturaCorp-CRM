@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\StatutCommande;
 use App\Models\Commande;
 use App\Models\Pharmacie;
 use Illuminate\Http\Request;
@@ -13,9 +14,11 @@ class CommandeController extends Controller
      */
     public function index()
     {
-        return view('commandes.index', [
-            'commandes' => Commande::with('pharmacie')->get()
-        ]);
+        $commandes = Commande::with(['pharmacie', 'user'])->latest()->get();
+        $pharmacies = Pharmacie::all();
+        $statuts = StatutCommande::cases();
+
+        return view('commandes.index', compact('commandes', 'pharmacies', 'statuts'));
     }
 
     /**
@@ -33,17 +36,20 @@ class CommandeController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $data = $request->validate([
             'pharmacie_id' => 'required|exists:pharmacies,id',
             'date_commande' => 'required|date',
-            'statut' => 'required|in:validée,en_cours,livrée',
-            'quantite' => 'required|integer',
-            'tarif_unitaire' => 'required|numeric',
+            'statut' => 'required|in:' . implode(',', array_column(StatutCommande::cases(), 'value')),
+            'quantite' => 'required|integer|min:1',
+            'tarif_unitaire' => 'required|numeric|min:0',
             'observations' => 'nullable|string',
         ]);
 
-        Commande::create($validated);
-        return redirect()->route('commandes.index');
+        $data['user_id'] = auth()->id();
+
+        Commande::create($data);
+
+        return redirect()->back()->with('success', 'Commande créée avec succès.');
     }
 
     /**
@@ -70,17 +76,18 @@ class CommandeController extends Controller
      */
     public function update(Request $request, Commande $commande)
     {
-        $validated = $request->validate([
+        $data = $request->validate([
             'pharmacie_id' => 'required|exists:pharmacies,id',
             'date_commande' => 'required|date',
-            'statut' => 'required|in:validée,en_cours,livrée',
-            'quantite' => 'required|integer',
-            'tarif_unitaire' => 'required|numeric',
+            'statut' => 'required|in:' . implode(',', array_column(StatutCommande::cases(), 'value')),
+            'quantite' => 'required|integer|min:1',
+            'tarif_unitaire' => 'required|numeric|min:0',
             'observations' => 'nullable|string',
         ]);
 
-        $commande->update($validated);
-        return redirect()->route('commandes.index');
+        $commande->update($data);
+
+        return redirect()->back()->with('success', 'Commande mise à jour avec succès.')
     }
 
     /**
@@ -89,6 +96,6 @@ class CommandeController extends Controller
     public function destroy(Commande $commande)
     {
         $commande->delete();
-        return redirect()->route('commandes.index');
+        return redirect()->back()->with('success', 'Commande supprimée.');
     }
 }
