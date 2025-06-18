@@ -76,6 +76,7 @@ class CommandeController extends Controller
      */
     public function update(Request $request, Commande $commande)
     {
+//        dd($request->all());
         $data = $request->validate([
             'pharmacie_id' => 'required|exists:pharmacies,id',
             'date_commande' => 'required|date',
@@ -87,7 +88,7 @@ class CommandeController extends Controller
 
         $commande->update($data);
 
-        return redirect()->back()->with('success', 'Commande mise à jour avec succès.')
+        return redirect()->back()->with('success', 'Commande mise à jour avec succès.');
     }
 
     /**

@@ -26,6 +26,9 @@ class Commande extends Model
         'date_commande' => 'date',
     ];
 
+    protected $appends = ['statut_label'];
+
+
     public function pharmacie(): BelongsTo
     {
         return $this->belongsTo(Pharmacie::class);
@@ -34,5 +37,10 @@ class Commande extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function getStatutLabelAttribute(): string
+    {
+        return $this->statut?->label() ?? '';
     }
 }
