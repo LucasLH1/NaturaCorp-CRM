@@ -2,7 +2,8 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{DashboardController,
+use App\Http\Controllers\{CarteController,
+    DashboardController,
     PharmacieController,
     CommandeController,
     DocumentJointController,
@@ -32,6 +33,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('notifications', [NotificationInterneController::class, 'index'])->name('notifications.index');
     Route::patch('notifications/{notificationInterne}/lue', [NotificationInterneController::class, 'markAsRead'])->name('notifications.markAsRead');
     Route::delete('notifications/{notificationInterne}', [NotificationInterneController::class, 'destroy'])->name('notifications.destroy');
+
+    Route::get('/carte', [CarteController::class, 'index'])->name('carte.index');
 
     Route::get('rapports', [RapportController::class, 'index'])->name('rapports.index');
     Route::get('rapports/{rapport}', [RapportController::class, 'show'])->name('rapports.show');
