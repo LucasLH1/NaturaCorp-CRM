@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Enums\StatutCommande;
 use App\Models\Commande;
+use App\Models\NotificationInterne;
 use App\Models\Pharmacie;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class CommandeController extends Controller
@@ -47,7 +49,18 @@ class CommandeController extends Controller
 
         $data['user_id'] = auth()->id();
 
-        Commande::create($data);
+        $commande = Commande::create($data);
+
+        $admins = User::role('admin')->get();
+
+        foreach ($admins as $admin) {
+            NotificationInterne::create([
+                'user_id' => $admin->id,
+                'titre' => 'Nouvelle commande créée',
+                'contenu' => "Commande pour la pharmacie « {$commande->pharmacie->nom} », créée par {$commande->user->name}.",
+                'est_lu' => false,
+            ]);
+        }
 
         return redirect()->back()->with('success', 'Commande créée avec succès.');
     }

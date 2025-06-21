@@ -1,47 +1,78 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{CarteController,
+use App\Http\Controllers\{
+    ProfileController,
     DashboardController,
     PharmacieController,
     CommandeController,
     DocumentJointController,
     NotificationInterneController,
     RapportController,
+    CarteController,
     JournalActiviteController,
-    UserController};
+    UserController
+};
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', fn() => view('welcome'));
 
-
+// Authentification requise pour toutes les routes protégées
 Route::middleware(['auth'])->group(function () {
 
+    /**
+     * Tableau de bord
+     */
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/data/commandes', [DashboardController::class, 'chartCommandes'])->name('dashboard.data.commandes');
 
+    /**
+     * Profil
+     */
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::resource('users', UserController::class);
+    /**
+     * Utilisateurs (réservé aux admins)
+     */
+    Route::middleware(['role:admin'])->group(function () {
+        Route::resource('users', UserController::class);
+        Route::get('journal', [JournalActiviteController::class, 'index'])->name('journal.index');
+        Route::delete('journal/{journalActivite}', [JournalActiviteController::class, 'destroy'])->name('journal.destroy');
+    });
+
+    /**
+     * Gestion des pharmacies et commandes (CRM)
+     */
     Route::resource('pharmacies', PharmacieController::class);
     Route::resource('commandes', CommandeController::class);
     Route::resource('documents', DocumentJointController::class)->names('documents');
-    Route::get('notifications', [NotificationInterneController::class, 'index'])->name('notifications.index');
-    Route::patch('notifications/{notificationInterne}/lue', [NotificationInterneController::class, 'markAsRead'])->name('notifications.markAsRead');
-    Route::delete('notifications/{notificationInterne}', [NotificationInterneController::class, 'destroy'])->name('notifications.destroy');
 
+    /**
+     * Carte interactive
+     */
     Route::get('/carte', [CarteController::class, 'index'])->name('carte.index');
 
-    Route::get('rapports', [RapportController::class, 'index'])->name('rapports.index');
-    Route::get('rapports/{rapport}', [RapportController::class, 'show'])->name('rapports.show');
-    Route::delete('rapports/{rapport}', [RapportController::class, 'destroy'])->name('rapports.destroy');
+    /**
+     * Rapports (réservé aux admins)
+     */
+    Route::middleware(['role:admin'])->group(function () {
+        Route::get('rapports', [RapportController::class, 'index'])->name('rapports.index');
+        Route::get('rapports/{rapport}', [RapportController::class, 'show'])->name('rapports.show');
+        Route::delete('rapports/{rapport}', [RapportController::class, 'destroy'])->name('rapports.destroy');
+    });
 
-    Route::get('journal', [JournalActiviteController::class, 'index'])->name('journal.index');
-    Route::delete('journal/{journalActivite}', [JournalActiviteController::class, 'destroy'])->name('journal.destroy');
+    /**
+     * Notifications internes (accessible à tous les utilisateurs authentifiés)
+     */
+    Route::prefix('notifications')->middleware(['auth'])->group(function () {
+        Route::get('/fetch', [NotificationInterneController::class, 'fetch'])->name('notifications.fetch');
+        Route::post('/read-all', [NotificationInterneController::class, 'markAllAsRead'])->name('notifications.readAll');
+        Route::post('/{notification}/read', [NotificationInterneController::class, 'markAsRead'])->name('notifications.read');
+        Route::delete('/{notification}', [NotificationInterneController::class, 'destroy'])->name('notifications.destroy');
+    });
+
+
 });
 
 require __DIR__.'/auth.php';

@@ -58,7 +58,8 @@ class PharmacieController extends Controller
      */
     public function show(Pharmacie $pharmacie)
     {
-        //
+        $pharmacie->load('commercial'); // pour afficher le nom
+        return view('pharmacies.show', compact('pharmacie'));
     }
 
     /**

@@ -21,12 +21,21 @@
     @include('layouts.sidebar')
 
     <div class="ml-64 w-full min-h-screen bg-gray-50">
-        {{ $header ?? '' }}
+        @include('layouts.navbar')
+
+        @if(isset($header))
+            <div class="px-6 pt-6 pb-4">
+                <div class="bg-white rounded-lg px-6 py-4 shadow-sm border">
+                    {!! $header !!}
+                </div>
+            </div>
+        @endif
 
         <main class="p-6">
             {{ $slot }}
         </main>
     </div>
+
 </div>
 @stack('scripts')
 </body>

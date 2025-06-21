@@ -54,4 +54,9 @@ class User extends Authenticatable
         return $this->hasMany(Commande::class);
     }
 
+    public function notificationsInternes()
+    {
+        return $this->hasMany(NotificationInterne::class);
+    }
+
 }

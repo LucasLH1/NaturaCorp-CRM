@@ -1,7 +1,7 @@
-import './bootstrap';
+import Alpine from 'alpinejs'
+import initNotifications from './components/notifications'
 
-import Alpine from 'alpinejs';
+window.Alpine = Alpine
+window.initNotifications = initNotifications
 
-window.Alpine = Alpine;
-
-Alpine.start();
+Alpine.start()

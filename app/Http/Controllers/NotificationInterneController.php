@@ -3,72 +3,34 @@
 namespace App\Http\Controllers;
 
 use App\Models\NotificationInterne;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class NotificationInterneController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function fetch()
     {
-        return view('notifications.index', [
-            'notifications' => NotificationInterne::with('utilisateur')->latest()->get()
-        ]);
+        return response()->json(
+            Auth::user()->notificationsInternes()->latest()->take(10)->get()
+        );
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function markAllAsRead()
     {
-        //
+        Auth::user()->notificationsInternes()->where('est_lu', false)->update(['est_lu' => true]);
+        return response()->json(['success' => true]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function markAsRead(NotificationInterne $notification)
     {
-        //
+        abort_unless($notification->user_id === Auth::id(), 403);
+        $notification->update(['est_lu' => true]);
+        return response()->json(['success' => true]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(NotificationInterne $notificationInterne)
+    public function destroy(NotificationInterne $notification)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(NotificationInterne $notificationInterne)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, NotificationInterne $notificationInterne)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(NotificationInterne $notificationInterne)
-    {
-        $notificationInterne->delete();
-        return redirect()->route('notifications.index');
-    }
-
-    public function markAsRead(NotificationInterne $notificationInterne)
-    {
-        $notificationInterne->update(['est_lu' => true]);
-        return redirect()->back();
+        abort_unless($notification->user_id === Auth::id(), 403);
+        $notification->delete();
+        return response()->json(['success' => true]);
     }
 }
