@@ -9,58 +9,36 @@
 
         <!-- Tableau de bord -->
         <a href="{{ route('dashboard') }}" class="flex items-center space-x-2 px-3 py-2 hover:bg-gray-800 rounded">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M3 12l2-2m0 0l7-7 7 7M13 5v6h6m4 0a9 9 0 11-18 0 9 9 0 0118 0z"
-                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m4 12 8-8 8 8M6 10.5V19a1 1 0 0 0 1 1h3v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h3a1 1 0 0 0 1-1v-8.5"/>
             </svg>
+
             <span>Tableau de bord</span>
         </a>
 
         <!-- Section PHARMACIES -->
-        <div x-data="{ open: false }" class="space-y-1">
-            <button @click="open = !open"
-                    class="flex items-center justify-between w-full px-3 py-2 hover:bg-gray-800 rounded">
-                <span class="flex items-center space-x-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path d="M3 7h5l2 3h11v11H3z"
-                              stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    <span>Pharmacies</span>
-                </span>
-                <svg :class="{ 'rotate-90': open }"
-                     class="w-4 h-4 transform transition-transform"
-                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path d="M9 5l7 7-7 7"
-                          stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </button>
-            <div x-show="open" class="pl-8 mt-1 space-y-1 text-gray-300" x-cloak>
-                <a href="{{ route('pharmacies.index') }}" class="block hover:text-white">Liste</a>
-                <a href="{{ route('pharmacies.create') }}" class="block hover:text-white">Créer</a>
-            </div>
-        </div>
+
+        <a href="{{ route('pharmacies.index') }}" class="flex items-center space-x-2 px-3 py-2 hover:bg-gray-800 rounded">
+            <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M8.737 8.737a21.49 21.49 0 0 1 3.308-2.724m0 0c3.063-2.026 5.99-2.641 7.331-1.3 1.827 1.828.026 6.591-4.023 10.64-4.049 4.049-8.812 5.85-10.64 4.023-1.33-1.33-.736-4.218 1.249-7.253m6.083-6.11c-3.063-2.026-5.99-2.641-7.331-1.3-1.827 1.828-.026 6.591 4.023 10.64m3.308-9.34a21.497 21.497 0 0 1 3.308 2.724m2.775 3.386c1.985 3.035 2.579 5.923 1.248 7.253-1.336 1.337-4.245.732-7.295-1.275M14 12a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z"/>
+            </svg>
+            <span>Pharmacies</span>
+        </a>
+
 
         <!-- Commandes -->
         <a href="{{ route('commandes.index') }}" class="flex items-center space-x-2 px-3 py-2 hover:bg-gray-800 rounded">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M9 2h6a2 2 0 012 2v2H7V4a2 2 0 012-2zM7 6h10v14H7z"
-                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4h1.5L8 16m0 0h8m-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm.75-3H7.5M11 7H6.312M17 4v6m-3-3h6"/>
             </svg>
             <span>Commandes</span>
         </a>
 
-        <!-- Documents -->
-        <a href="{{ route('documents.index') }}" class="flex items-center space-x-2 px-3 py-2 hover:bg-gray-800 rounded">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M4 4h16v16H4V4z M8 4v16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-            <span>Documents</span>
-        </a>
-
         <!-- Carte -->
         <a href="{{ route('carte.index') }}" class="flex items-center space-x-2 px-3 py-2 hover:bg-gray-800 rounded">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M9 19V6l6-2v13l-6 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.8 13.938h-.011a7 7 0 1 0-11.464.144h-.016l.14.171c.1.127.2.251.3.371L12 21l5.13-6.248c.194-.209.374-.429.54-.659l.13-.155Z"/>
             </svg>
             <span>Carte</span>
         </a>
@@ -72,9 +50,8 @@
         </div>
 
         <a href="{{ route('users.index') }}" class="flex items-center space-x-2 px-3 py-2 hover:bg-gray-800 rounded text-sm">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M9 20H4v-2a3 3 0 015.356-1.857M12 4a4 4 0 110 8 4 4 0 010-8z"
-                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M16 19h4a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-2m-2.236-4a3 3 0 1 0 0-4M3 18v-1a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Zm8-10a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
             </svg>
             <span>Utilisateurs</span>
         </a>
@@ -88,9 +65,8 @@
         </a>
 
         <a href="{{ route('journal.index') }}" class="flex items-center space-x-2 px-3 py-2 hover:bg-gray-800 rounded text-sm">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M12 4v16m8-16H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2z"
-                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7h1v12a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h11.5M7 14h6m-6 3h6m0-10h.5m-.5 3h.5M7 7h3v3H7V7Z"/>
             </svg>
             <span>Journal</span>
         </a>
@@ -102,9 +78,8 @@
         <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button class="flex items-center space-x-2 text-red-400 hover:text-red-600 text-sm">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path d="M17 16l4-4m0 0l-4-4m4 4H7m6-4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7"
-                          stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                <svg class="w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12H4m12 0-4 4m4-4-4-4m3-4h2a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3h-2"/>
                 </svg>
                 <span>Déconnexion</span>
             </button>

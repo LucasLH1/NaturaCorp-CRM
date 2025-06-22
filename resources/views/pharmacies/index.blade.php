@@ -34,7 +34,8 @@
 
             <x-slot name="body">
                 <template x-for="pharmacie in filteredPharmacies()" :key="pharmacie.id">
-                    <tr class="hover:bg-gray-50 transition-all">
+                    <tr class="hover:bg-gray-50 transition cursor-pointer"
+                        @click="window.location.href = `/pharmacies/${pharmacie.id}`">
                         <td class="px-4 py-3" x-text="pharmacie.nom"></td>
                         <td class="px-4 py-3" x-text="pharmacie.email || '-'"></td>
                         <td class="px-4 py-3" x-text="pharmacie.telephone || '-'"></td>
@@ -52,10 +53,24 @@
                         </td>
                         <td class="px-4 py-3" x-text="pharmacie.commercial?.name || '-'"></td>
                         <td class="px-4 py-3 text-right">
-                            <button @click="modalMode = 'edit'; editingPharmacie = pharmacie; modalOpen = true"
-                                    class="text-blue-600 hover:underline text-sm font-medium">
+                            <button
+                                @click.stop="modalMode = 'edit'; editingPharmacie = pharmacie; modalOpen = true"
+                                class="text-blue-600 hover:underline text-sm font-medium">
                                 Modifier
                             </button>
+                            <form method="POST"
+                                  :action="`/pharmacies/${pharmacie.id}`"
+                                  @click.stop
+                                  @submit.prevent="if(confirm('Confirmer la suppression ?')) { $event.target.submit() }">
+                                @csrf
+                                <input type="hidden" name="_method" value="DELETE">
+                                <button type="submit" class="text-red-600 hover:underline text-sm font-medium">
+                                    Supprimer
+                                </button>
+                            </form>
+
+
+
                         </td>
                     </tr>
                 </template>

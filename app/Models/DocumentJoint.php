@@ -11,6 +11,7 @@ class DocumentJoint extends Model
 
     protected $fillable = [
         'pharmacie_id',
+        'commande_id',
         'nom_fichier',
         'chemin',
         'type',
@@ -20,5 +21,9 @@ class DocumentJoint extends Model
     {
         return $this->belongsTo(Pharmacie::class);
     }
-}
 
+    public function commande()
+    {
+        return $this->belongsTo(Commande::class);
+    }
+}

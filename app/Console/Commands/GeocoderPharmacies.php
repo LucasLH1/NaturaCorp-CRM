@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Models\Pharmacie;
+use App\Services\GeocodageService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Http;
 
 class GeocoderPharmacies extends Command
 {
@@ -22,33 +22,19 @@ class GeocoderPharmacies extends Command
             return;
         }
 
+        $service = new GeocodageService();
+
         foreach ($pharmacies as $pharmacie) {
-            $adresse = "{$pharmacie->adresse}, {$pharmacie->code_postal} {$pharmacie->ville}, France";
+            $this->info("Géocodage : {$pharmacie->nom}");
 
-            $this->info("Géocodage : {$pharmacie->nom} -> $adresse");
-
-            $response = Http::withHeaders([
-                'User-Agent' => 'NaturaCorpCRM/1.0 (contact@natura.test)',
-            ])->get('https://nominatim.openstreetmap.org/search', [
-                'q' => $adresse,
-                'format' => 'json',
-                'limit' => 1,
-            ]);
-
-
-            if ($response->failed() || empty($response[0])) {
+            if (! $service->geocoder($pharmacie)) {
                 $this->warn("Aucune coordonnée trouvée.");
                 continue;
             }
 
-            $data = $response[0];
-
-            $pharmacie->latitude = (float) $data['lat'];
-            $pharmacie->longitude = (float) $data['lon'];
             $pharmacie->save();
+            $this->info("OK -> lat: {$pharmacie->latitude} / lon: {$pharmacie->longitude}");
 
-
-            $this->info("OK -> lat: {$data['lat']} / lon: {$data['lon']}");
             sleep(1); // Respect Nominatim rate limit
         }
 

@@ -33,16 +33,26 @@ class DocumentJointController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'pharmacie_id' => 'required|exists:pharmacies,id',
-            'nom_fichier' => 'required|string',
-            'chemin' => 'required|string',
-            'type' => 'nullable|string',
+            'type' => 'required|string',
+            'fichier' => 'required|file|max:5120', // 5MB
         ]);
 
-        DocumentJoint::create($validated);
-        return redirect()->route('documents.index');
+        $fichier = $request->file('fichier');
+        $nom = 'Doc_' . uniqid() . '.' . $fichier->getClientOriginalExtension();
+        $chemin = $fichier->storeAs('documents', $nom, 'public');
+
+        DocumentJoint::create([
+            'pharmacie_id' => $request->pharmacie_id,
+            'nom_fichier' => $fichier->getClientOriginalName(),
+            'chemin' => $chemin,
+            'type' => $request->type,
+        ]);
+
+        return back()->with('success', 'Document ajouté avec succès.');
     }
+
 
     /**
      * Display the specified resource.

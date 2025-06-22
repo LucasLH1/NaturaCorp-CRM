@@ -8,12 +8,15 @@
          class="bg-white rounded-lg shadow-lg w-full max-w-3xl p-6">
 
         <form :action="modalMode === 'create'
-                        ? '{{ route('pharmacies.store') }}'
-                        : `/pharmacies/${editingPharmacie.id}`"
+                ? '{{ route('pharmacies.store') }}'
+                : `/pharmacies/${editingPharmacie.id}`"
               method="POST"
               class="space-y-6">
             @csrf
-            <input type="hidden" name="_method" value="PUT" x-show="modalMode === 'edit'">
+
+            <template x-if="modalMode === 'edit'">
+                <input type="hidden" name="_method" value="PUT">
+            </template>
 
             <!-- Titre -->
             <div>

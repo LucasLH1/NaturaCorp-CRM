@@ -8,6 +8,9 @@ use App\Models\NotificationInterne;
 use App\Models\Pharmacie;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
+use App\Models\DocumentJoint;
 
 class CommandeController extends Controller
 {
@@ -62,6 +65,23 @@ class CommandeController extends Controller
             ]);
         }
 
+        $pdf = Pdf::loadView('pdfs.commande', ['commande' => $commande]);
+
+        $filename = 'commande_' . $commande->id . '_' . now()->format('Ymd_His') . '.pdf';
+        $path = 'documents/' . $filename;
+
+        // Stockage
+        Storage::disk('public')->put($path, $pdf->output());
+
+        // Enregistrement du document joint
+        DocumentJoint::create([
+            'pharmacie_id'   => $commande->pharmacie_id,
+            'commande_id'    => $commande->id,
+            'nom_fichier'    => 'Commande PDF - ' . $commande->id,
+            'chemin'         => $path,
+            'type'           => 'rapport_commande',
+        ]);
+
         return redirect()->back()->with('success', 'Commande créée avec succès.');
     }
 
@@ -109,7 +129,18 @@ class CommandeController extends Controller
      */
     public function destroy(Commande $commande)
     {
+        // Supprimer le document PDF associé s'il existe
+        if ($commande->document) {
+            $path = storage_path('app/public/' . $commande->document->chemin);
+            if (file_exists($path)) {
+                unlink($path);
+            }
+
+            $commande->document->delete();
+        }
+
         $commande->delete();
-        return redirect()->back()->with('success', 'Commande supprimée.');
+
+        return redirect()->back()->with('success', 'Commande supprimée avec succès.');
     }
 }

@@ -60,6 +60,13 @@
                                     class="text-blue-600 hover:underline text-sm font-medium">
                                 Modifier
                             </button>
+                            <!-- Ajout dans la colonne Actions -->
+                            <form method="POST" :action="`/commandes/${commande.id}`" @submit.prevent="if(confirm('Confirmer la suppression ?')) $el.submit()">
+                                @csrf
+                                <input type="hidden" name="_method" value="DELETE">
+                                <button type="submit" class="text-red-600 hover:underline text-sm">Supprimer</button>
+                            </form>
+
                         </td>
                     </tr>
                 </template>

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Pharmacie;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Services\GeocodageService;
+use Illuminate\Support\Facades\Storage;
 
 class PharmacieController extends Controller
 {
@@ -48,7 +50,11 @@ class PharmacieController extends Controller
             'commercial_id' => 'nullable|exists:users,id',
         ]);
 
-        Pharmacie::create($validated);
+
+        $pharmacie = Pharmacie::create($validated);
+
+        app(GeocodageService::class)->geocoder($pharmacie);
+        $pharmacie->save();
 
         return redirect()->route('pharmacies.index');
     }
@@ -56,11 +62,19 @@ class PharmacieController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Pharmacie $pharmacie)
+    public function show(Pharmacie $pharmacy)
     {
-        $pharmacie->load('commercial'); // pour afficher le nom
-        return view('pharmacies.show', compact('pharmacie'));
+        // On charge les relations nécessaires
+        $pharmacy->load([
+            'commercial',        // User rattaché en tant que commercial
+            'documents',         // Documents joints liés à la pharmacie
+            'commandes'          // Commandes liées à cette pharmacie
+        ]);
+
+        return view('pharmacies.show', compact('pharmacy'));
     }
+
+
 
     /**
      * Show the form for editing the specified resource.
@@ -90,18 +104,40 @@ class PharmacieController extends Controller
             'commercial_id' => 'nullable|exists:users,id',
         ]);
 
+        $adresseModifiee =
+            $pharmacie->adresse !== $validated['adresse'] ||
+            $pharmacie->ville !== $validated['ville'] ||
+            $pharmacie->code_postal !== $validated['code_postal'];
+
         $pharmacie->update($validated);
 
-        return redirect()->route('pharmacies.index');
+        if ($adresseModifiee) {
+            app(GeocodageService::class)->geocoder($pharmacie);
+            $pharmacie->save();
+        }
+        return redirect()->back()->with('success', 'Pharmacie mise à jour avec succès.');
     }
 
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Pharmacie $pharmacie)
+    public function destroy(Pharmacie $pharmacy)
     {
-        $pharmacie->delete();
-        return redirect()->route('pharmacies.index');
+        // Supprimer documents joints associés
+        foreach ($pharmacy->documents as $doc) {
+            Storage::delete('public/' . $doc->chemin);
+            $doc->delete();
+        }
+
+        // Supprimer les commandes
+        $pharmacy->commandes()->delete();
+
+        // Supprimer la pharmacie
+        $pharmacy->delete();
+
+        return redirect()->route('pharmacies.index')->with('success', 'Pharmacie supprimée avec succès.');
     }
+
+
 }
