@@ -1,30 +1,69 @@
 <?php
 
-use App\Models\Pharmacie;
+use function Pest\Laravel\{get, post, put, delete};
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Models\Pharmacie;
+use Spatie\Permission\Models\Role;
 
-uses(RefreshDatabase::class);
+beforeEach(function () {
+    Role::findOrCreate('admin');
+    Role::findOrCreate('commercial');
 
-// Test de création
-it('peut créer une pharmacie', function () {
-    $pharmacie = Pharmacie::create([
-        'nom' => 'Pharma Bleue',
-        'adresse' => '12 rue Santé',
-        'code_postal' => '75000',
-        'ville' => 'Paris',
-        'email' => 'contact@pharmableue.fr',
-        'telephone' => '0102030405',
-        'statut' => 'client_actif',
+    $this->user = User::factory()->create();
+    $this->user->assignRole('admin');
+    $this->actingAs($this->user);
+});
+
+it('permet d\'accéder à la liste des pharmacies', function () {
+    $response = get('/pharmacies');
+    $response->assertStatus(200); // ou ->assertOk()
+});
+
+it('affiche une fiche pharmacie', function () {
+    $pharmacie = Pharmacie::factory()->create();
+    get('/pharmacies/' . $pharmacie->id)->assertOk();
+});
+
+it('enregistre une nouvelle pharmacie', function () {
+    $data = Pharmacie::factory()->make()->toArray();
+
+    $response = post('/pharmacies', $data);
+    $response->assertRedirect('/pharmacies');
+
+    expect(Pharmacie::where('nom', $data['nom'])->exists())->toBeTrue();
+});
+
+it('met à jour une pharmacie', function () {
+    $pharmacie = Pharmacie::factory()->create();
+
+    $updateData = [
+        'nom' => 'Pharmacie Test Modifiée',
+        'siret' => $pharmacie->siret,
+        'adresse' => $pharmacie->adresse,
+        'code_postal' => $pharmacie->code_postal,
+        'ville' => $pharmacie->ville,
+        'statut' => $pharmacie->statut,
+        'email' => $pharmacie->email,
+        'telephone' => $pharmacie->telephone,
+        'derniere_prise_contact' => $pharmacie->derniere_prise_contact?->format('Y-m-d'),
+    ];
+
+    $response = put('/pharmacies/' . $pharmacie->id, $updateData);
+    $response->assertRedirect();
+
+    expect(Pharmacie::find($pharmacie->id)->nom)->toBe('Pharmacie Test Modifiée');
+});
+
+it('supprime une pharmacie', function () {
+    $pharmacie = Pharmacie::factory()->create([
+        'commercial_id' => null,
+        'zone_id' => null,
     ]);
 
-    expect($pharmacie)->toBeInstanceOf(Pharmacie::class)
-        ->and($pharmacie->nom)->toBe('Pharma Bleue');
-});
+    $response = delete('/pharmacies/' . $pharmacie->id);
+    $response->assertRedirect('/pharmacies');
 
-// Test en base
-it('est bien enregistré en base', function () {
-    Pharmacie::factory()->create(['nom' => 'Test Pharmacie']);
-    expect(Pharmacie::where('nom', 'Test Pharmacie')->exists())->toBeTrue();
+    $this->assertDatabaseMissing('pharmacies', [
+        'id' => $pharmacie->id,
+    ]);
 });
-
