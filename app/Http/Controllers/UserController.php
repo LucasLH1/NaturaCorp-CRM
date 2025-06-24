@@ -54,23 +54,6 @@ class UserController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(User $user)
-    {
-        $roles = Role::pluck('name', 'name');
-        return view('users.edit', compact('user', 'roles'));
-    }
-
-    /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, User $user)

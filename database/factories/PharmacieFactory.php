@@ -12,14 +12,14 @@ class PharmacieFactory extends Factory
     public function definition(): array
     {
         return [
-            'nom' => $this->faker->company,
-            'adresse' => $this->faker->address,
-            'code_postal' => $this->faker->postcode,
-            'ville' => $this->faker->city,
-            'email' => $this->faker->unique()->safeEmail,
-            'telephone' => $this->faker->phoneNumber,
-            'statut' => $this->faker->randomElement(['prospect', 'client_actif', 'client_inactif']),
+            'nom' => $this->faker->company(),
+            'siret' => $this->faker->unique()->numerify('### ### ### #####'),
+            'email' => $this->faker->safeEmail(),
+            'telephone' => $this->faker->phoneNumber(),
+            'adresse' => $this->faker->address(),
+            'code_postal' => $this->faker->postcode(),
+            'ville' => $this->faker->city(),
+            'statut' => 'prospect',
         ];
     }
 }
-

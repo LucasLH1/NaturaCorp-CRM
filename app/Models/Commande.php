@@ -19,6 +19,7 @@ class Commande extends Model
         'quantite',
         'tarif_unitaire',
         'observations',
+        'produit_id',
     ];
 
     protected $casts = [
@@ -43,4 +44,17 @@ class Commande extends Model
     {
         return $this->statut?->label() ?? '';
     }
+
+    public function produit()
+    {
+        return $this->belongsTo(Produit::class);
+    }
+
+    public function document()
+    {
+        return $this->hasOne(DocumentJoint::class);
+    }
+
+
+
 }

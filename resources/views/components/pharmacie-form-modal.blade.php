@@ -4,14 +4,14 @@
      x-cloak
      class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
      style="display: none;">
-    <div @click.outside="modalOpen = false"
-         class="bg-white rounded-lg shadow-lg w-full max-w-3xl p-6">
+
+
 
         <form :action="modalMode === 'create'
                 ? '{{ route('pharmacies.store') }}'
                 : `/pharmacies/${editingPharmacie.id}`"
               method="POST"
-              class="space-y-6">
+              class="bg-white rounded-lg shadow-lg w-full max-w-3xl p-6">
             @csrf
 
             <template x-if="modalMode === 'edit'">

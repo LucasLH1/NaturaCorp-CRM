@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{
+use App\Http\Controllers\{ProduitController,
     ProfileController,
     DashboardController,
     PharmacieController,
@@ -11,8 +11,7 @@ use App\Http\Controllers\{
     RapportController,
     CarteController,
     JournalActiviteController,
-    UserController
-};
+    UserController};
 
 Route::get('/', fn() => view('welcome'));
 
@@ -24,6 +23,10 @@ Route::middleware(['auth'])->group(function () {
      */
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/data/commandes', [DashboardController::class, 'chartCommandes'])->name('dashboard.data.commandes');
+
+    Route::middleware(['auth', 'role:admin'])->group(function () {
+        Route::resource('produits', ProduitController::class)->only(['index', 'store', 'update', 'destroy']);
+    });
 
     /**
      * Profil
@@ -37,14 +40,16 @@ Route::middleware(['auth'])->group(function () {
      */
     Route::middleware(['role:admin'])->group(function () {
         Route::resource('users', UserController::class);
-        Route::get('journal', [JournalActiviteController::class, 'index'])->name('journal.index');
-        Route::delete('journal/{journalActivite}', [JournalActiviteController::class, 'destroy'])->name('journal.destroy');
+        Route::get('/logs', [JournalActiviteController::class, 'index'])->name('admin.logs');
+
     });
 
     /**
      * Gestion des pharmacies et commandes (CRM)
      */
-    Route::resource('pharmacies', PharmacieController::class);
+    Route::middleware(['role:admin|commercial'])->group(function () {
+        Route::resource('pharmacies', PharmacieController::class);
+    });
     Route::resource('commandes', CommandeController::class);
     Route::resource('documents', DocumentJointController::class)->names('documents');
 
@@ -70,6 +75,10 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/read-all', [NotificationInterneController::class, 'markAllAsRead'])->name('notifications.readAll');
         Route::post('/{notification}/read', [NotificationInterneController::class, 'markAsRead'])->name('notifications.read');
         Route::delete('/{notification}', [NotificationInterneController::class, 'destroy'])->name('notifications.destroy');
+    });
+
+    Route::get('/debug-delete/{pharmacie}', function (\App\Models\Pharmacie $pharmacie) {
+        dd($pharmacie);
     });
 
 

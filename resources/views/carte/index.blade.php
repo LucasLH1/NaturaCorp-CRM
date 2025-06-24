@@ -92,8 +92,6 @@
                             (!this.filters.ville || p.ville === this.filters.ville) &&
                             (!this.filters.statut || p.statut === this.filters.statut)
                         );
-
-                        // Éventuellement, transmettre `filtered` à une carte via event ou store (à faire si refacto poussée)
                     },
 
                     formatStatut(value) {

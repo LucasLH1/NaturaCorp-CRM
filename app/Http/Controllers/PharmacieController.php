@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pharmacie;
+use App\Models\Produit;
 use App\Models\User;
+use App\Services\JournalService;
 use Illuminate\Http\Request;
 use App\Services\GeocodageService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class PharmacieController extends Controller
@@ -15,21 +18,25 @@ class PharmacieController extends Controller
      */
     public function index()
     {
-        $pharmacies = Pharmacie::with('commercial')->get();
+        $user = auth()->user();
+        //on ne récupère que les pharmacies qui ont la même zone assignée au commercial
+        if ($user->hasRole('admin')) {
+            $pharmacies = Pharmacie::with('zone')->get();
+        } elseif ($user->hasRole('commercial')) {
+            $zoneIds = $user->zones->pluck('id');
+            $pharmacies = Pharmacie::with('zone')
+                ->whereIn('zone_id', $zoneIds)
+                ->get();
+        } else {
+            abort(403);
+        }
+
         $commerciaux = User::role('commercial')->get();
 
         return view('pharmacies.index', [
             'pharmacies' => $pharmacies,
             'commerciaux' => $commerciaux,
         ]);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        return view('pharmacies.create');
     }
 
     /**
@@ -56,6 +63,9 @@ class PharmacieController extends Controller
         app(GeocodageService::class)->geocoder($pharmacie);
         $pharmacie->save();
 
+        JournalService::log('create', "Création d'une pharmacie #{$pharmacie->id}");
+
+
         return redirect()->route('pharmacies.index');
     }
 
@@ -71,17 +81,9 @@ class PharmacieController extends Controller
             'commandes'          // Commandes liées à cette pharmacie
         ]);
 
-        return view('pharmacies.show', compact('pharmacy'));
-    }
+        $produits = Produit::all();
 
-
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Pharmacie $pharmacie)
-    {
-        return view('pharmacies.edit', compact('pharmacie'));
+        return view('pharmacies.show', compact('pharmacy','produits'));
     }
 
     /**
@@ -110,6 +112,7 @@ class PharmacieController extends Controller
             $pharmacie->code_postal !== $validated['code_postal'];
 
         $pharmacie->update($validated);
+        JournalService::log('update', "Modification d'une pharmacie #{$pharmacie->id}");
 
         if ($adresseModifiee) {
             app(GeocodageService::class)->geocoder($pharmacie);
@@ -122,22 +125,21 @@ class PharmacieController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Pharmacie $pharmacy)
+    public function destroy($id)
     {
-        // Supprimer documents joints associés
-        foreach ($pharmacy->documents as $doc) {
+        $pharmacie = Pharmacie::findOrFail($id);
+
+        foreach ($pharmacie->documents as $doc) {
             Storage::delete('public/' . $doc->chemin);
             $doc->delete();
         }
 
-        // Supprimer les commandes
-        $pharmacy->commandes()->delete();
+        $pharmacie->commandes()->delete();
+        $pharmacie->delete();
 
-        // Supprimer la pharmacie
-        $pharmacy->delete();
+        JournalService::log('delete', "Suppression d'une pharmacie #{$pharmacie->id}");
 
         return redirect()->route('pharmacies.index')->with('success', 'Pharmacie supprimée avec succès.');
     }
-
 
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\JournalActivite;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class JournalActiviteController extends Controller
@@ -10,51 +11,23 @@ class JournalActiviteController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('journal.index', [
-            'activites' => JournalActivite::with('utilisateur')->latest()->get()
-        ]);
-    }
+        $query = JournalActivite::with('user')->latest();
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
+        }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        if ($request->filled('action')) {
+            $query->where('action', $request->action);
+        }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(JournalActivite $journalActivite)
-    {
-        //
-    }
+        $logs = $query->paginate(20);
+        $users = User::select('id', 'name')->get();
+        $actions = JournalActivite::select('action')->distinct()->pluck('action');
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(JournalActivite $journalActivite)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, JournalActivite $journalActivite)
-    {
-        //
+        return view('admin.logs.index', compact('logs', 'users', 'actions'));
     }
 
     /**

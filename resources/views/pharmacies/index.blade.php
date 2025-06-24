@@ -53,23 +53,22 @@
                         </td>
                         <td class="px-4 py-3" x-text="pharmacie.commercial?.name || '-'"></td>
                         <td class="px-4 py-3 text-right">
-                            <button
-                                @click.stop="modalMode = 'edit'; editingPharmacie = pharmacie; modalOpen = true"
-                                class="text-blue-600 hover:underline text-sm font-medium">
-                                Modifier
-                            </button>
-                            <form method="POST"
+                                <button
+                                    @click.stop="modalMode = 'edit'; editingPharmacie = pharmacie; modalOpen = true"
+                                    class="text-blue-600 hover:underline text-sm font-medium">
+                                    Modifier
+                                </button>
+
+                                <form method="POST"
                                   :action="`/pharmacies/${pharmacie.id}`"
                                   @click.stop
                                   @submit.prevent="if(confirm('Confirmer la suppression ?')) { $event.target.submit() }">
-                                @csrf
-                                <input type="hidden" name="_method" value="DELETE">
-                                <button type="submit" class="text-red-600 hover:underline text-sm font-medium">
-                                    Supprimer
-                                </button>
-                            </form>
-
-
+                                    @csrf
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button type="submit" class="text-red-600 hover:underline text-sm font-medium">
+                                        Supprimer
+                                    </button>
+                                </form>
 
                         </td>
                     </tr>

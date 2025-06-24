@@ -7,19 +7,29 @@
         window.commandesFromLaravel = @json($commandes);
         window.pharmaciesFromLaravel = @json($pharmacies);
         window.statutsFromLaravel = @json($statuts);
+        window.produitsFromLaravel = @json($produits);
     </script>
 
     <div class="p-6 bg-white shadow rounded"
-         x-data="initCommandeTable(window.commandesFromLaravel)">
+         x-data="initCommandeTable(window.commandesFromLaravel, window.produitsFromLaravel)">
 
         <!-- Barre de recherche + bouton ajouter -->
         <div class="flex justify-between items-center mb-4">
             <input type="text" x-model="search" placeholder="Rechercher..."
                    class="w-full max-w-xs border rounded px-3 py-2">
-            <button @click="modalMode = 'create'; editingCommande = {}; modalOpen = true"
+            <button @click="
+                    modalMode = 'create';
+                    editingCommande = {
+                        produit_id: window.produitsFromLaravel[0]?.id ?? null,
+                        tarif_unitaire: window.produitsFromLaravel[0]?.tarif_unitaire ?? '',
+                        date_commande: new Date().toISOString().substring(0,10)
+                    };
+                    modalOpen = true;
+                "
                     class="ml-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
                 + Ajouter
             </button>
+
         </div>
 
         <!-- Tableau -->
@@ -43,62 +53,62 @@
                         <td class="px-4 py-3" x-text="commande.pharmacie.nom"></td>
                         <td class="px-4 py-3" x-text="formatDate(commande.date_commande)"></td>
                         <td class="px-4 py-3">
-                    <span
-                        class="inline-block px-2 py-1 text-xs rounded-full font-medium"
-                        :class="{
-                            'bg-green-50 text-green-700': commande.statut === 'livree',
-                            'bg-yellow-50 text-yellow-700': commande.statut === 'en_attente',
-                            'bg-blue-50 text-blue-700': commande.statut === 'validee',
-                        }"
-                        x-text="commande.statut_label"
-                    ></span>
+                            <span
+                                class="inline-block px-2 py-1 text-xs rounded-full font-medium"
+                                :class="{
+                                    'bg-green-50 text-green-700': commande.statut === 'livree',
+                                    'bg-yellow-50 text-yellow-700': commande.statut === 'en_attente',
+                                    'bg-blue-50 text-blue-700': commande.statut === 'validee',
+                                }"
+                                x-text="commande.statut_label"
+                            ></span>
                         </td>
                         <td class="px-4 py-3 text-right font-mono" x-text="commande.quantite"></td>
                         <td class="px-4 py-3 text-right font-mono" x-text="parseFloat(commande.tarif_unitaire).toFixed(2) + ' €'"></td>
                         <td class="px-4 py-3 text-right">
-                            <button @click="modalMode = 'edit'; editingCommande = commande; modalOpen = true"
+                            <button @click="modalMode = 'edit'; editingCommande = { ...commande, quantite_initiale: commande.quantite }; modalOpen = true"
                                     class="text-blue-600 hover:underline text-sm font-medium">
                                 Modifier
                             </button>
-                            <!-- Ajout dans la colonne Actions -->
                             <form method="POST" :action="`/commandes/${commande.id}`" @submit.prevent="if(confirm('Confirmer la suppression ?')) $el.submit()">
                                 @csrf
                                 <input type="hidden" name="_method" value="DELETE">
                                 <button type="submit" class="text-red-600 hover:underline text-sm">Supprimer</button>
                             </form>
-
                         </td>
                     </tr>
                 </template>
             </x-slot>
         </x-table>
 
-
-        <x-commande-form-modal :pharmacies="$pharmacies" :statuts="$statuts" />
+        <!-- Modal avec données produits -->
+        <x-commande-form-modal :pharmacies="$pharmacies" :statuts="$statuts" :produits="$produits" />
     </div>
 
     <script>
-        function initCommandeTable(commandes) {
+        function initCommandeTable(commandes, produits) {
             return {
                 search: '',
                 modalOpen: false,
                 modalMode: 'create',
                 editingCommande: {},
                 commandes: commandes,
+                produits: produits,
 
                 filteredCommandes() {
-                    return this.commandes.filter(c =>
-                        c.pharmacie.nom.toLowerCase().includes(this.search.toLowerCase())
-                    );
+                    return this.commandes
+                        .filter(c =>
+                            c.pharmacie.nom.toLowerCase().includes(this.search.toLowerCase())
+                        )
+                        .sort((a, b) => new Date(b.date_commande) - new Date(a.date_commande));
                 },
 
                 formatDate(dateString) {
                     if (!dateString) return '';
                     const d = new Date(dateString);
-                    return d.toLocaleDateString('fr-FR'); // Format : jj/mm/aaaa
+                    return d.toLocaleDateString('fr-FR');
                 }
             };
         }
     </script>
-
 </x-app-layout>

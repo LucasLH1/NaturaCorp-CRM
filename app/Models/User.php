@@ -59,4 +59,10 @@ class User extends Authenticatable
         return $this->hasMany(NotificationInterne::class);
     }
 
+    public function zones()
+    {
+        return $this->belongsToMany(Zone::class);
+    }
+
+
 }

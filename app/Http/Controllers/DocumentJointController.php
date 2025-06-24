@@ -4,30 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\DocumentJoint;
 use App\Models\Pharmacie;
+use App\Services\JournalService;
 use Illuminate\Http\Request;
 
 class DocumentJointController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        return view('documents.index', [
-            'documents' => DocumentJoint::with('pharmacie')->get()
-        ]);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        return view('documents.create', [
-            'pharmacies' => Pharmacie::all()
-        ]);
-    }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -50,43 +31,9 @@ class DocumentJointController extends Controller
             'type' => $request->type,
         ]);
 
+        JournalService::log('create', "Création d'un fichier de type #{$request->type}. Nom : {$fichier->getClientOriginalName()}");
+
         return back()->with('success', 'Document ajouté avec succès.');
-    }
-
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(DocumentJoint $documentJoint)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(DocumentJoint $documentJoint)
-    {
-        return view('documents.edit', [
-            'document' => $documentJoint,
-            'pharmacies' => Pharmacie::all()
-        ]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, DocumentJoint $documentJoint)
-    {
-        $validated = $request->validate([
-            'pharmacie_id' => 'required|exists:pharmacies,id',
-            'nom_fichier' => 'required|string',
-            'chemin' => 'required|string',
-            'type' => 'nullable|string',
-        ]);
-
-        $documentJoint->update($validated);
-        return redirect()->route('documents.index');
     }
 
     /**
