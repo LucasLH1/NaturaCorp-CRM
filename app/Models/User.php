@@ -61,8 +61,9 @@ class User extends Authenticatable
 
     public function zones()
     {
-        return $this->belongsToMany(Zone::class);
+        return $this->belongsToMany(Zone::class, 'user_zone');
     }
+
 
 
 }

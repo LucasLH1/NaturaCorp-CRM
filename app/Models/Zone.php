@@ -10,9 +10,9 @@ class Zone extends Model
 {
     protected $fillable = ['nom', 'code_departement', 'user_id'];
 
-    public function users()
+    public function commerciaux()
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class, 'user_zone');
     }
 
     public function pharmacies()

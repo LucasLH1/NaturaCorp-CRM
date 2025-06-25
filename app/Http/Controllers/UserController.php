@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Zone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
@@ -14,10 +15,10 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::with('roles')->get();
+        $users = User::with(['roles', 'zones'])->get();
         $roles = Role::pluck('name');
-
-        return view('users.index', compact('users', 'roles'));
+        $zones = Zone::all(['id', 'nom']);
+        return view('users.index', compact('users', 'roles','zones'));
     }
 
     /**
@@ -39,6 +40,8 @@ class UserController extends Controller
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:6|confirmed',
             'role' => 'required|exists:roles,name',
+            'zones' => 'array',
+            'zones.*' => 'exists:zones,id',
         ]);
 
         $user = User::create([
@@ -50,15 +53,19 @@ class UserController extends Controller
 
         $user->assignRole($validated['role']);
 
+        if (!empty($validated['zones'])) {
+            $user->zones()->sync($validated['zones']);
+        }
+
         return redirect()->route('users.index');
     }
+
 
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, User $user)
     {
-
         $request->merge([
             'is_active' => $request->has('is_active'),
         ]);
@@ -69,6 +76,8 @@ class UserController extends Controller
             'password' => 'nullable|string|min:6|confirmed',
             'role' => 'required|exists:roles,name',
             'is_active' => 'boolean',
+            'zones' => 'array',
+            'zones.*' => 'exists:zones,id',
         ]);
 
         $user->update([
@@ -81,6 +90,8 @@ class UserController extends Controller
         ]);
 
         $user->syncRoles([$validated['role']]);
+
+        $user->zones()->sync($validated['zones'] ?? []);
 
         return redirect()->route('users.index');
     }

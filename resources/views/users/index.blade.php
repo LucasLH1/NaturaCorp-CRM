@@ -5,10 +5,12 @@
 
     <script>
         window.usersFromLaravel = @json($users);
+        window.zonesFromLaravel = @json($zones);
+
     </script>
 
     <div class="p-6 bg-white shadow rounded"
-         x-data="initUserTable(window.usersFromLaravel)">
+         x-data="initUserTable(window.usersFromLaravel, window.zonesFromLaravel)"
 
 
         <!-- Barre de recherche + bouton ajouter -->
@@ -49,7 +51,12 @@
                     ></span>
                         </td>
                         <td class="px-4 py-3 text-right">
-                            <button @click="modalMode = 'edit'; editingUser = user; modalOpen = true"
+                            <button @click="
+    modalMode = 'edit';
+    editingUser = user;
+    selectedZones = (user.zones || []).map(z => z.id);
+    modalOpen = true;
+"
                                     class="text-blue-600 hover:underline text-sm font-medium">
                                 Modifier
                             </button>
@@ -60,7 +67,7 @@
         </x-table>
 
 
-        <x-user-form-modal :roles="$roles" />
+        <x-user-form-modal :roles="$roles" :zones="$zones" />
     </div>
 
     <script>

@@ -1,7 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{ProduitController,
+use App\Http\Controllers\{
+    ProduitController,
     ProfileController,
     DashboardController,
     PharmacieController,
@@ -11,65 +12,56 @@ use App\Http\Controllers\{ProduitController,
     RapportController,
     CarteController,
     JournalActiviteController,
-    UserController};
+    UserController
+};
 
-Route::get('/', fn() => view('welcome'));
+Route::get('/', fn() => redirect('dashboard'));
 
-// Authentification requise pour toutes les routes protégées
+// auth obligatoire pour tout ce qui suit
 Route::middleware(['auth'])->group(function () {
 
-    /**
-     * Tableau de bord
-     */
+    // tableau de bord
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/data/commandes', [DashboardController::class, 'chartCommandes'])->name('dashboard.data.commandes');
 
+    // produits (admin uniquement)
     Route::middleware(['auth', 'role:admin'])->group(function () {
         Route::resource('produits', ProduitController::class)->only(['index', 'store', 'update', 'destroy']);
     });
 
-    /**
-     * Profil
-     */
+    // profil utilisateur
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    /**
-     * Utilisateurs (réservé aux admins)
-     */
+    // utilisateurs
     Route::middleware(['role:admin'])->group(function () {
         Route::resource('users', UserController::class);
         Route::get('/logs', [JournalActiviteController::class, 'index'])->name('admin.logs');
-
     });
 
-    /**
-     * Gestion des pharmacies et commandes (CRM)
-     */
+    // pharmacies
     Route::middleware(['role:admin|commercial'])->group(function () {
         Route::resource('pharmacies', PharmacieController::class);
     });
+
+    // commandes
     Route::resource('commandes', CommandeController::class);
+
+    // documents
     Route::resource('documents', DocumentJointController::class)->names('documents');
 
-    /**
-     * Carte interactive
-     */
+    // carte
     Route::get('/carte', [CarteController::class, 'index'])->name('carte.index');
 
-    /**
-     * Rapports (réservé aux admins)
-     */
+    // rapports
     Route::middleware(['role:admin'])->group(function () {
         Route::get('rapports', [RapportController::class, 'index'])->name('rapports.index');
         Route::get('rapports/{rapport}', [RapportController::class, 'show'])->name('rapports.show');
         Route::delete('rapports/{rapport}', [RapportController::class, 'destroy'])->name('rapports.destroy');
     });
 
-    /**
-     * Notifications internes (accessible à tous les utilisateurs authentifiés)
-     */
+    // notifications
     Route::prefix('notifications')->middleware(['auth'])->group(function () {
         Route::get('/fetch', [NotificationInterneController::class, 'fetch'])->name('notifications.fetch');
         Route::post('/read-all', [NotificationInterneController::class, 'markAllAsRead'])->name('notifications.readAll');
@@ -77,10 +69,10 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{notification}', [NotificationInterneController::class, 'destroy'])->name('notifications.destroy');
     });
 
+    // debug (suppression pharmacie)
     Route::get('/debug-delete/{pharmacie}', function (\App\Models\Pharmacie $pharmacie) {
         dd($pharmacie);
     });
-
 
 });
 
