@@ -10,7 +10,7 @@
     </script>
 
     <div class="p-6 bg-white shadow rounded"
-         x-data="initUserTable(window.usersFromLaravel, window.zonesFromLaravel)"
+         x-data="initUserTable(window.usersFromLaravel, window.zonesFromLaravel)">
 
 
         <div class="flex justify-between items-center mb-4">
