@@ -35,7 +35,7 @@ class GeocoderPharmacies extends Command
             $pharmacie->save();
             $this->info("OK -> lat: {$pharmacie->latitude} / lon: {$pharmacie->longitude}");
 
-            sleep(1); // Respect Nominatim rate limit
+            sleep(1);
         }
 
         $this->info('Géocodage terminé.');

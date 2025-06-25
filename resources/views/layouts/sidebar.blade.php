@@ -17,7 +17,7 @@
         </a>
 
         <!-- Pharmacies -->
-        @can('viewAny', App\Models\Pharmacie::class)
+        @role('commercial|admin')
             <a href="{{ route('pharmacies.index') }}"
                class="flex items-center space-x-2 px-3 py-2 rounded {{ request()->routeIs('pharmacies.*') ? 'bg-gray-800' : 'hover:bg-gray-800' }}">
                 <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -25,10 +25,10 @@
                 </svg>
                 <span>Pharmacies</span>
             </a>
-        @endcan
+        @endrole
 
         <!-- Commandes -->
-        @can('viewAny', App\Models\Commande::class)
+        @role('commercial|admin')
             <a href="{{ route('commandes.index') }}"
                class="flex items-center space-x-2 px-3 py-2 rounded {{ request()->routeIs('commandes.*') ? 'bg-gray-800' : 'hover:bg-gray-800' }}">
                 <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -36,9 +36,9 @@
                 </svg>
                 <span>Commandes</span>
             </a>
-        @endcan
+        @endrole
 
-        @can('logistique')
+        @role('logistique|admin')
         <a href="{{ route('produits.index') }}"
            class="flex items-center space-x-2 px-3 py-2 rounded {{ request()->routeIs('produits.*') ? 'bg-gray-800' : 'hover:bg-gray-800' }}">
             <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -46,7 +46,7 @@
             </svg>
             <span>Produits</span>
         </a>
-        @endcan
+        @endrole
 
         <!-- Carte (tous utilisateurs connectés) -->
         <a href="{{ route('carte.index') }}"

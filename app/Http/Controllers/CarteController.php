@@ -17,13 +17,11 @@ class CarteController extends Controller
             ->whereNotNull('latitude')
             ->whereNotNull('longitude');
 
-        // Si commercial → filtrer par zones
         if ($user->hasRole('commercial')) {
             $zoneIds = $user->zones->pluck('id');
             $query->whereIn('zone_id', $zoneIds);
         }
 
-        // Si autre rôle sans droit, refuser l'accès
         elseif (!$user->hasRole('admin')) {
             abort(403);
         }

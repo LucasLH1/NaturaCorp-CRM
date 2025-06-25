@@ -45,8 +45,6 @@ class Pharmacie extends Model
         return $this->belongsTo(Zone::class);
     }
 
-
-
     protected static function booted(): void
     {
         static::saving(function ($pharmacie) {

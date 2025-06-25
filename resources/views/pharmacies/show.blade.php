@@ -72,17 +72,14 @@
     <!-- Section principale -->
     <div x-data="initCommandeTable(window.commandesFromLaravel, window.produitsFromLaravel)" class="grid grid-cols-1 xl:grid-cols-12 gap-6">
 
-        <!-- Infos pharmacie -->
         <div class="bg-white p-6 rounded shadow xl:col-span-5">
             <x-pharmacies.formulaire :pharmacy="$pharmacy" />
         </div>
 
-        <!-- Documents -->
         <div class="bg-white p-6 rounded shadow xl:col-span-7">
             <x-pharmacies.documents :pharmacy="$pharmacy" />
         </div>
 
-        <!-- Commandes -->
         <div class="bg-white p-6 rounded shadow xl:col-span-12">
             <x-pharmacies.commandes :pharmacy="$pharmacy" :produits="$produits" />
         </div>

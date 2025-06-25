@@ -14,33 +14,29 @@ class LierZonesPharmacies extends Command
     public function handle(): void
     {
         $pharmacies = Pharmacie::all();
-        $liées = 0;
-        $sans_zone = 0;
+        $i = 0;
+        $x = 0;
 
         foreach ($pharmacies as $pharmacie) {
             if (!$pharmacie->code_postal) {
-                $sans_zone++;
+                $x++;
                 continue;
             }
 
             $dep = substr($pharmacie->code_postal, 0, 2);
-
-            if (str_starts_with($pharmacie->code_postal, '20')) {
-                $dep = (intval($pharmacie->code_postal) < 20200) ? '2A' : '2B';
-            }
 
             $zone = Zone::where('code_departement', $dep)->first();
 
             if ($zone) {
                 $pharmacie->zone_id = $zone->id;
                 $pharmacie->save();
-                $liées++;
+                $i++;
             } else {
-                $sans_zone++;
+                $x++;
             }
         }
 
-        $this->info("Pharmacies liées à une zone : {$liées}");
-        $this->warn("Pharmacies sans zone trouvée : {$sans_zone}");
+        $this->info("Pharmacies liées à une zone : {$i}");
+        $this->warn("Pharmacies sans zone trouvée : {$x}");
     }
 }

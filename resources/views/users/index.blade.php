@@ -13,7 +13,6 @@
          x-data="initUserTable(window.usersFromLaravel, window.zonesFromLaravel)"
 
 
-        <!-- Barre de recherche + bouton ajouter -->
         <div class="flex justify-between items-center mb-4">
             <input type="text" x-model="search" placeholder="Rechercher..."
                    class="w-full max-w-xs border rounded px-3 py-2">
@@ -23,7 +22,6 @@
             </button>
         </div>
 
-        <!-- Tableau -->
         <x-table>
             <x-slot name="head">
                 <tr>
@@ -52,11 +50,11 @@
                         </td>
                         <td class="px-4 py-3 text-right">
                             <button @click="
-    modalMode = 'edit';
-    editingUser = user;
-    selectedZones = (user.zones || []).map(z => z.id);
-    modalOpen = true;
-"
+                                            modalMode = 'edit';
+                                            editingUser = user;
+                                            selectedZones = (user.zones || []).map(z => z.id);
+                                            modalOpen = true;
+                                            "
                                     class="text-blue-600 hover:underline text-sm font-medium">
                                 Modifier
                             </button>

@@ -12,7 +12,7 @@ class GeocodageService
         $adresse = "{$pharmacie->adresse}, {$pharmacie->code_postal} {$pharmacie->ville}, France";
 
         $response = Http::withHeaders([
-            'User-Agent' => 'NaturaCorpCRM/1.0 (contact@natura.test)',
+            'User-Agent' => 'NaturaCorpCRM/1.0 (contact@naturacorp.test)',
         ])->get('https://nominatim.openstreetmap.org/search', [
             'q' => $adresse,
             'format' => 'json',

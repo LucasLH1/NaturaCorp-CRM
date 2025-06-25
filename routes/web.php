@@ -40,16 +40,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/logs', [JournalActiviteController::class, 'index'])->name('admin.logs');
     });
 
-    // pharmacies
+    // pharmacies commandes documents
     Route::middleware(['role:admin|commercial'])->group(function () {
         Route::resource('pharmacies', PharmacieController::class);
+        Route::resource('commandes', CommandeController::class);
+        Route::resource('documents', DocumentJointController::class)->names('documents');
     });
-
-    // commandes
-    Route::resource('commandes', CommandeController::class);
-
-    // documents
-    Route::resource('documents', DocumentJointController::class)->names('documents');
 
     // carte
     Route::get('/carte', [CarteController::class, 'index'])->name('carte.index');
