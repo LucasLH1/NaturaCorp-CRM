@@ -19,7 +19,7 @@ class CommandeFactory extends Factory
             'produit_id' => \App\Models\Produit::factory(),
             'user_id' => \App\Models\User::factory(), // ← ligne obligatoire
             'quantite' => $this->faker->numberBetween(1, 10),
-            'statut' => \App\Enums\StatutCommande::EN_ATTENTE->value,
+            'statut' => \App\Enums\StatutCommande::EN_COURS->value,
             'tarif_unitaire' => $this->faker->randomFloat(2, 10, 100),
             'date_commande' => now(),
         ];

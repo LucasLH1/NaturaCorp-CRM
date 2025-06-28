@@ -57,7 +57,7 @@
                                 class="inline-block px-2 py-1 text-xs rounded-full font-medium"
                                 :class="{
                                     'bg-green-50 text-green-700': commande.statut === 'livree',
-                                    'bg-yellow-50 text-yellow-700': commande.statut === 'en_attente',
+                                    'bg-yellow-50 text-yellow-700': commande.statut === 'en_cours',
                                     'bg-blue-50 text-blue-700': commande.statut === 'validee',
                                 }"
                                 x-text="commande.statut_label"

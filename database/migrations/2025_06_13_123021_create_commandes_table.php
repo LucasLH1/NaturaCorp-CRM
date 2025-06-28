@@ -10,7 +10,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('pharmacie_id')->constrained('pharmacies')->onDelete('cascade');
             $table->date('date_commande');
-            $table->enum('statut', ['en_attente', 'validee', 'livree'])->default('en_attente');
+            $table->enum('statut', ['en_cours', 'validee', 'livree'])->default('en_cours');
             $table->integer('quantite');
             $table->decimal('tarif_unitaire', 8, 2);
             $table->text('observations')->nullable();
