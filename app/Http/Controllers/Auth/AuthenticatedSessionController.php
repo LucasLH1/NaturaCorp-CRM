@@ -27,11 +27,28 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
+        // On récupère l'utilisateur authentifié
+        $user = auth()->user();
+
+        // Vérifie le champ is_active
+        if (!$user->is_active) {
+            auth()->logout();
+
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()
+                ->route('login')
+                ->withErrors(['email' => 'Votre compte est désactivé. Veuillez contacter un administrateur.']);
+        }
+
         $request->session()->regenerate();
-        JournalService::log('login', "Connexion de l'utilisateur : " . auth()->user()->email);
+
+        JournalService::log('login', "Connexion de l'utilisateur : " . $user->email);
 
         return redirect()->intended(route('dashboard', absolute: false));
     }
+
 
     /**
      * Destroy an authenticated session.

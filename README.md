@@ -12,7 +12,6 @@ Ce projet permet de gérer les pharmacies clientes/prospects, leurs commandes, l
 - **Blade** (Front-end)
 - **PostgreSQL** (Base de données)
 - **Leaflet.js + OpenStreetMap** (Carte interactive)
-- **Laravel Sanctum** (Authentification)
 - **Vite** / **npm** pour les assets (JS, CSS)
 
 ---
@@ -66,7 +65,7 @@ APP_URL=http://localhost:8000
 DB_CONNECTION=pgsql
 DB_HOST=127.0.0.1
 DB_PORT=5432
-DB_DATABASE=naturacorp_crm
+DB_DATABASE=DB_NaturaCorp
 DB_USERNAME="votre_utilisateur"
 DB_PASSWORD="votre_mot_de_passe"
 ```
@@ -137,7 +136,7 @@ php artisan test
 - `could not find driver (pgsql)` → installer l’extension `pdo_pgsql`
 - Erreur 500 / page blanche → vérifier `.env` et clé `APP_KEY`
 - CSS/JS non chargés → relancer `npm install && npm run dev`
-
+- Base de données non valide / utilisateur inconnu → vérifier la présence de la bdd et du user conforme au .env
 
 ---
 
