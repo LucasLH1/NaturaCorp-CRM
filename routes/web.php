@@ -70,6 +70,10 @@ Route::middleware(['auth'])->group(function () {
         dd($pharmacie);
     });
 
+    Route::get('/confidentialite', function () {
+        return view('politiques.rgpd');
+    })->name('confidentialite');
+
 });
 
 require __DIR__.'/auth.php';

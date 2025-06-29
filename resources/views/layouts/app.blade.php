@@ -37,6 +37,16 @@
     </div>
 
 </div>
+
+<footer class="mt-8 border-t border-gray-200 py-4 bg-white">
+    <div class="max-w-7xl mx-auto px-4 text-center text-sm text-gray-500">
+        <p class="mb-2">&copy; {{ date('Y') }} NaturaCorp — Tous droits réservés.</p>
+        <a href="{{ route('confidentialite') }}" class="text-gray-600 hover:text-gray-800 hover:underline transition">
+            Politique de confidentialité (RGPD)
+        </a>
+    </div>
+</footer>
+
 @stack('scripts')
 </body>
 </html>
