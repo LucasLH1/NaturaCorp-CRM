@@ -79,11 +79,11 @@ class CommandeController extends Controller
 
         JournalService::log('create', "Création d'une commande #{$commande->id} pour la pharmacie #{$commande->pharmacie_id}");
 
-        $admins = User::role('admin')->get();
+        $utilisateurs = User::role(['commercial', 'logistique', 'admin'])->get();
 
-        foreach ($admins as $admin) {
+        foreach ($utilisateurs as $utilisateur) {
             NotificationInterne::create([
-                'user_id' => $admin->id,
+                'user_id' => $utilisateur->id,
                 'titre' => 'Nouvelle commande créée',
                 'contenu' => "Commande pour la pharmacie « {$commande->pharmacie->nom} », créée par {$commande->user->name}.",
                 'est_lu' => false,

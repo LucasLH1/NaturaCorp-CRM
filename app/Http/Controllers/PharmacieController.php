@@ -65,7 +65,6 @@ class PharmacieController extends Controller
 
         JournalService::log('create', "Création d'une pharmacie #{$pharmacie->id}");
 
-
         return redirect()->route('pharmacies.index');
     }
 
