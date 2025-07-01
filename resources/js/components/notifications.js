@@ -1,8 +1,8 @@
-export default function initNotifications() {
+export default function initNotifications(initialUnread = 0) {
     return {
         open: false,
         notifications: [],
-        unreadCount: 0,
+        unreadCount: initialUnread,
 
         toggle() {
             this.open = !this.open;

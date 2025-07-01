@@ -1,4 +1,4 @@
-<div x-data="initNotifications()" class="relative">
+<div x-data="initNotifications({{$unreadCount ?? 0}})" class="relative">
     <button @click="toggle" class="relative focus:outline-none">
         <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

@@ -64,6 +64,11 @@ class User extends Authenticatable
         return $this->belongsToMany(Zone::class, 'user_zone');
     }
 
+    public function notificationsNonLuesCount()
+    {
+        return $this->notificationsInternes()->where('est_lu', false)->count();
+    }
+
 
 
 }
