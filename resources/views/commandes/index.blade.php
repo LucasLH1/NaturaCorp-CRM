@@ -20,16 +20,18 @@
             <button @click="
                     modalMode = 'create';
                     editingCommande = {
-                        produit_id: window.produitsFromLaravel[0]?.id ?? null,
-                        tarif_unitaire: window.produitsFromLaravel[0]?.tarif_unitaire ?? '',
-                        date_commande: new Date().toISOString().substring(0,10)
+                        pharmacie_id: '',
+                        date_commande: new Date().toISOString().substring(0,10),
+                        statut: window.statutsFromLaravel[0]?.value ?? '',
+                        observations: '',
+                        produits: []
                     };
+                    ajouterProduit();
                     modalOpen = true;
                 "
                     class="ml-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
                 + Ajouter
             </button>
-
         </div>
 
         <!-- Tableau -->
@@ -40,8 +42,6 @@
                     <th class="px-4 py-3 text-left">Pharmacie</th>
                     <th class="px-4 py-3 text-left">Date</th>
                     <th class="px-4 py-3 text-left">Statut</th>
-                    <th class="px-4 py-3 text-right">Qté</th>
-                    <th class="px-4 py-3 text-right">Tarif</th>
                     <th class="px-4 py-3 text-right">Actions</th>
                 </tr>
             </x-slot>
@@ -63,11 +63,28 @@
                                 x-text="commande.statut_label"
                             ></span>
                         </td>
-                        <td class="px-4 py-3 text-right font-mono" x-text="commande.quantite"></td>
-                        <td class="px-4 py-3 text-right font-mono" x-text="parseFloat(commande.tarif_unitaire).toFixed(2) + ' €'"></td>
                         <td class="px-4 py-3 text-right">
-                            <button @click="modalMode = 'edit'; editingCommande = { ...commande, quantite_initiale: commande.quantite }; modalOpen = true"
-                                    class="text-blue-600 hover:underline text-sm font-medium">
+                            <button
+                                @click="
+        modalMode = 'edit';
+        editingCommande = {
+            ...commande,
+            date_commande: new Date(commande.date_commande).toISOString().substring(0, 10),
+            produits: commande.produits.map(p => ({
+                id: null, // valeur temporaire
+                quantite: p.pivot.quantite,
+                prix_unitaire: p.pivot.prix_unitaire
+            }))
+        };
+        modalOpen = true;
+
+        $nextTick(() => {
+            editingCommande.produits.forEach((prod, idx) => {
+                prod.id = Number(commande.produits[idx].id);
+            });
+        });
+    "
+                                class="text-blue-600 hover:underline text-sm font-medium">
                                 Modifier
                             </button>
                             <form method="POST" :action="`/commandes/${commande.id}`" @submit.prevent="if(confirm('Confirmer la suppression ?')) $el.submit()">
@@ -81,7 +98,7 @@
             </x-slot>
         </x-table>
 
-        <!-- Modal avec données produits -->
+        <!-- Modal -->
         <x-commande-form-modal :pharmacies="$pharmacies" :statuts="$statuts" :produits="$produits" />
     </div>
 
@@ -91,7 +108,13 @@
                 search: '',
                 modalOpen: false,
                 modalMode: 'create',
-                editingCommande: {},
+                editingCommande: {
+                    pharmacie_id: '',
+                    date_commande: '',
+                    statut: '',
+                    observations: '',
+                    produits: [],
+                },
                 commandes: commandes,
                 produits: produits,
 
@@ -103,10 +126,60 @@
                         .sort((a, b) => new Date(b.date_commande) - new Date(a.date_commande));
                 },
 
+                stockProduit(id) {
+                    if (!id) return 0;
+                    const produit = this.produits.find(p => p.id == id);
+                    return produit ? produit.stock : 0;
+                },
+
                 formatDate(dateString) {
                     if (!dateString) return '';
                     const d = new Date(dateString);
                     return d.toLocaleDateString('fr-FR');
+                },
+
+                ajouterProduit() {
+                    if (!this.editingCommande.produits) {
+                        this.editingCommande.produits = [];
+                    }
+                    this.editingCommande.produits.push({ id: '', quantite: 1, prix_unitaire: 0 });
+                },
+
+                supprimerProduit(index) {
+                    this.editingCommande.produits.splice(index, 1);
+                },
+
+                updateTarif(index) {
+                    const produit = this.produits.find(p => p.id == this.editingCommande.produits[index].id);
+                    if (produit) {
+                        this.editingCommande.produits[index].prix_unitaire = produit.tarif_unitaire;
+                    } else {
+                        this.editingCommande.produits[index].prix_unitaire = 0;
+                    }
+                },
+
+                stockVirtuel(index) {
+                    const ligne = this.editingCommande.produits[index];
+                    const produit = this.produits.find(p => p.id == ligne.id);
+                    if (!produit) return 0;
+
+                    if (this.modalMode === 'edit') {
+                        const ancienneQuantite = this.commandes
+                            .find(c => c.id === this.editingCommande.id)
+                            ?.produits.find(p => p.id == ligne.id)
+                            ?.pivot?.quantite || 0;
+
+                        return produit.stock + ancienneQuantite;
+                    }
+
+                    return produit.stock;
+                },
+
+                stockSuffisant() {
+                    return this.editingCommande.produits.every((ligne, index) => {
+                        const stockDispo = this.stockVirtuel(index);
+                        return ligne.quantite <= stockDispo;
+                    });
                 }
             };
         }

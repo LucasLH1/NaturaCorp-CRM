@@ -13,7 +13,9 @@ class Produit extends Model
 
     public function commandes()
     {
-        return $this->hasMany(Commande::class);
+        return $this->belongsToMany(Commande::class, 'commande_produit')
+            ->withPivot('quantite', 'prix_unitaire')
+            ->withTimestamps();
     }
 
     public function decrementStock(int $quantite): bool

@@ -16,10 +16,7 @@ class Commande extends Model
         'user_id',
         'date_commande',
         'statut',
-        'quantite',
-        'tarif_unitaire',
         'observations',
-        'produit_id',
     ];
 
     protected $casts = [
@@ -45,9 +42,11 @@ class Commande extends Model
         return $this->statut?->label() ?? '';
     }
 
-    public function produit()
+    public function produits()
     {
-        return $this->belongsTo(Produit::class);
+        return $this->belongsToMany(Produit::class, 'commande_produit')
+            ->withPivot('quantite', 'prix_unitaire')
+            ->withTimestamps();
     }
 
     public function document()

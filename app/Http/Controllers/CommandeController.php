@@ -17,21 +17,17 @@ use App\Models\DocumentJoint;
 
 class CommandeController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $user = Auth::user();
 
         if ($user->hasRole('admin')) {
-            $commandes = Commande::with(['pharmacie', 'user'])->latest()->get();
+            $commandes = Commande::with(['pharmacie', 'user', 'produits'])->latest()->get();
             $pharmacies = Pharmacie::with('zone')->get();
         } elseif ($user->hasRole('commercial')) {
             $zoneIds = $user->zones->pluck('id');
 
-            // On ne récupère que les commandes dont la pharmacie appartient à une zone du commercial
-            $commandes = Commande::with(['pharmacie', 'user'])
+            $commandes = Commande::with(['pharmacie', 'user', 'produits'])
                 ->whereHas('pharmacie', fn ($query) => $query->whereIn('zone_id', $zoneIds))
                 ->latest()
                 ->get();
@@ -49,33 +45,43 @@ class CommandeController extends Controller
         return view('commandes.index', compact('commandes', 'pharmacies', 'statuts', 'produits'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $data = $request->validate([
-            'pharmacie_id'     => 'required|exists:pharmacies,id',
-            'produit_id'       => 'required|exists:produits,id',
-            'date_commande'    => 'required|date',
-            'statut'           => 'required|in:' . implode(',', array_column(StatutCommande::cases(), 'value')),
-            'quantite'         => 'required|integer|min:1',
-            'tarif_unitaire'   => 'required|numeric|min:0',
-            'observations'     => 'nullable|string',
+            'pharmacie_id'   => 'required|exists:pharmacies,id',
+            'date_commande'  => 'required|date',
+            'statut'         => 'required|in:' . implode(',', array_column(StatutCommande::cases(), 'value')),
+            'observations'   => 'nullable|string',
+            'produits'       => 'required|array',
+            'produits.*.id'  => 'required|exists:produits,id',
+            'produits.*.quantite' => 'required|integer|min:1',
+            'produits.*.prix_unitaire' => 'required|numeric|min:0',
         ]);
-
-        $produit = Produit::findOrFail($data['produit_id']);
-
-        if ($produit->stock < $data['quantite']) {
-            return back()->withErrors(['quantite' => 'Stock insuffisant pour ce produit.']);
-        }
 
         $data['user_id'] = auth()->id();
 
-        $commande = Commande::create($data);
+        $commande = Commande::create([
+            'pharmacie_id'  => $data['pharmacie_id'],
+            'user_id'       => $data['user_id'],
+            'date_commande' => $data['date_commande'],
+            'statut'        => $data['statut'],
+            'observations'  => $data['observations'] ?? '',
+        ]);
 
-        // Décrémenter le stock
-        $produit->decrement('stock', $data['quantite']);
+        foreach ($data['produits'] as $p) {
+            $produit = Produit::findOrFail($p['id']);
+
+            if ($produit->stock < $p['quantite']) {
+                return back()->withErrors(['produits' => "Stock insuffisant pour le produit « {$produit->nom} »."]);
+            }
+
+            $commande->produits()->attach($produit->id, [
+                'quantite' => $p['quantite'],
+                'prix_unitaire' => $p['prix_unitaire'],
+            ]);
+
+            $produit->decrement('stock', $p['quantite']);
+        }
 
         JournalService::log('create', "Création d'une commande #{$commande->id} pour la pharmacie #{$commande->pharmacie_id}");
 
@@ -85,7 +91,7 @@ class CommandeController extends Controller
             NotificationInterne::create([
                 'user_id' => $utilisateur->id,
                 'titre' => 'Nouvelle commande créée',
-                'contenu' => "Commande pour la pharmacie « {$commande->pharmacie->nom} », créée par {$commande->user->name}.",
+                'contenu' => "Commande multiproduits pour la pharmacie « {$commande->pharmacie->nom} », créée par {$commande->user->name}.",
                 'est_lu' => false,
             ]);
         }
@@ -104,81 +110,81 @@ class CommandeController extends Controller
             'type'         => 'rapport_commande',
         ]);
 
-        return redirect()->back()->with('success', 'Commande créée avec succès.');
+        return redirect()->back()->with('success', 'Commande multiproduits créée avec succès.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Commande $commande)
     {
         $data = $request->validate([
-            'pharmacie_id'     => 'required|exists:pharmacies,id',
-            'produit_id'       => 'required|exists:produits,id',
-            'date_commande'    => 'nullable|date',
-            'statut'           => 'required|in:' . implode(',', array_column(StatutCommande::cases(), 'value')),
-            'quantite'         => 'required|integer|min:1',
-            'tarif_unitaire'   => 'required|numeric|min:0',
-            'observations'     => 'nullable|string',
+            'pharmacie_id'   => 'required|exists:pharmacies,id',
+            'date_commande'  => 'nullable|date',
+            'statut'         => 'required|in:' . implode(',', array_column(StatutCommande::cases(), 'value')),
+            'observations'   => 'nullable|string',
+            'produits'       => 'required|array',
+            'produits.*.id'  => 'required|exists:produits,id',
+            'produits.*.quantite' => 'required|integer|min:1',
+            'produits.*.prix_unitaire' => 'required|numeric|min:0',
         ]);
 
         if (empty($data['date_commande'])) {
             $data['date_commande'] = $commande->date_commande;
         }
 
-        $produit = Produit::findOrFail($data['produit_id']);
-
-        $quantiteDisponible = $produit->stock + $commande->quantite;
-
-        if ($data['quantite'] > $quantiteDisponible) {
-            return back()->withErrors(['quantite' => 'Stock insuffisant pour cette quantité.']);
+        // Remettre les stocks avant suppression des anciennes lignes pivot
+        foreach ($commande->produits as $ancienProduit) {
+            $ancienProduit->increment('stock', $ancienProduit->pivot->quantite);
         }
 
-        // Mise à jour du stock si la quantité change
-        if ($commande->quantite != $data['quantite']) {
-            $difference = $data['quantite'] - $commande->quantite;
-            $produit->stock -= $difference;
-            $produit->save();
+        $commande->produits()->detach();
+
+        foreach ($data['produits'] as $p) {
+            $produit = Produit::findOrFail($p['id']);
+
+            if ($produit->stock < $p['quantite']) {
+                return back()->withErrors(['produits' => "Stock insuffisant pour le produit « {$produit->nom} »."]);
+            }
+
+            $commande->produits()->attach($produit->id, [
+                'quantite' => $p['quantite'],
+                'prix_unitaire' => $p['prix_unitaire'],
+            ]);
+
+            $produit->decrement('stock', $p['quantite']);
         }
 
-        $commande->update($data);
+        $commande->update([
+            'pharmacie_id'  => $data['pharmacie_id'],
+            'date_commande' => $data['date_commande'],
+            'statut'        => $data['statut'],
+            'observations'  => $data['observations'] ?? '',
+        ]);
 
         JournalService::log('update', "Modification d'une commande #{$commande->id} pour la pharmacie #{$commande->pharmacie_id}");
 
         return redirect()->back()->with('success', 'Commande mise à jour avec succès.');
     }
 
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Commande $commande)
     {
-        // Charger les relations nécessaires
-        $commande->load(['document', 'produit']);
+        $commande->load(['document', 'produits']);
 
-        // Supprimer le fichier PDF associé, s'il existe
         if ($commande->document) {
             $path = storage_path('app/public/' . $commande->document->chemin);
-
             if (file_exists($path)) {
                 unlink($path);
             }
-
             $commande->document->delete();
         }
 
-        // Remettre en stock la quantité commandée
-        if ($commande->produit) {
-            $commande->produit->increment('stock', $commande->quantite);
+        foreach ($commande->produits as $produit) {
+            $produit->increment('stock', $produit->pivot->quantite);
         }
 
-        // Supprimer la commande
+        $commande->produits()->detach();
         $commande->delete();
 
         JournalService::log('delete', "Suppression d'une commande #{$commande->id}");
 
         return redirect()->back()->with('success', 'Commande supprimée avec succès.');
     }
-
 }

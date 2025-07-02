@@ -9,7 +9,9 @@ use App\Enums\StatutCommande;
 use Spatie\Permission\Models\Role;
 
 beforeEach(function () {
-    Role::findOrCreate('admin'); // garantit l'existence du rôle pour le guard 'web'
+    Role::findOrCreate('admin');
+    Role::findOrCreate('commercial');
+    Role::findOrCreate('logistique');
 
     $this->user = User::factory()->create();
     $this->user->assignRole('admin');
@@ -26,37 +28,58 @@ it('enregistre une nouvelle commande', function () {
 
     $data = [
         'pharmacie_id' => $pharmacie->id,
-        'produit_id' => $produit->id,
-        'quantite' => 5,
         'statut' => StatutCommande::VALIDEE->value,
-        'tarif_unitaire' => $produit->tarif_unitaire,
         'date_commande' => now()->format('Y-m-d'),
+        'produits' => [
+            [
+                'id' => $produit->id,
+                'quantite' => 5,
+                'prix_unitaire' => $produit->tarif_unitaire,
+            ],
+        ],
     ];
 
     $response = post('/commandes', $data);
     $response->assertRedirect();
 
-    expect(Commande::where('pharmacie_id', $pharmacie->id)
-        ->where('produit_id', $produit->id)
-        ->where('quantite', 5)
-        ->exists())->toBeTrue();
+    $commande = Commande::where('pharmacie_id', $pharmacie->id)->first();
+
+    expect($commande)->not()->toBeNull();
+    expect($commande->produits()->where('produit_id', $produit->id)->exists())->toBeTrue();
+    expect($commande->produits()->first()->pivot->quantite)->toBe(5);
 });
 
 it('met à jour une commande', function () {
-    $commande = Commande::factory()->create();
+    $produit = Produit::factory()->create(['stock' => 100]);
+    $pharmacie = Pharmacie::factory()->create();
+
+    $commande = Commande::factory()->create([
+        'pharmacie_id' => $pharmacie->id,
+        'date_commande' => now(),
+    ]);
+
+    $commande->produits()->attach($produit->id, [
+        'quantite' => 5,
+        'prix_unitaire' => $produit->tarif_unitaire,
+    ]);
 
     $response = put('/commandes/' . $commande->id, [
-        'quantite' => 11, // <-- valeur explicite ici
-        'statut' => $commande->statut->value,
         'pharmacie_id' => $commande->pharmacie_id,
-        'produit_id' => $commande->produit_id,
-        'tarif_unitaire' => $commande->tarif_unitaire,
-        'date_commande' => $commande->date_commande->format('Y-m-d'),
+        'date_commande' => now()->format('Y-m-d'),
+        'statut' => $commande->statut->value ?? StatutCommande::VALIDEE->value,
+        'observations' => $commande->observations,
+        'produits' => [
+            [
+                'id' => $produit->id,
+                'quantite' => 11,
+                'prix_unitaire' => $produit->tarif_unitaire,
+            ],
+        ],
     ]);
 
     $response->assertRedirect();
-    expect(Commande::find($commande->id)->quantite)->toBe(11);
-
+    $commande->refresh();
+    expect($commande->produits()->first()->pivot->quantite)->toBe(11);
 });
 
 it('supprime une commande', function () {
