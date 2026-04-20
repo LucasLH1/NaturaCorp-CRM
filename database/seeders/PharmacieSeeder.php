@@ -63,8 +63,60 @@ class PharmacieSeeder extends Seeder
             ['nom' => 'Pharmacie de la Cathédrale',   'siret' => '66778899001122', 'email' => 'cathedrale@pharma.fr',  'telephone' => '03 88 32 21 44', 'adresse' => '2 Place de la Cathédrale',   'code_postal' => '67000', 'ville' => 'Strasbourg', 'statut' => 'client_actif',   'commercial_id' => 2, 'latitude' => 48.5839, 'longitude' => 7.7455],
 
             // Lille (zone 59)
-            ['nom' => 'Pharmacie du Grand Place',     'siret' => '77889900112233', 'email' => 'grandplace@pharma.fr',  'telephone' => '03 20 54 33 11', 'adresse' => '8 Grand Place',              'code_postal' => '59000', 'ville' => 'Lille',      'statut' => 'client_actif',   'commercial_id' => 2, 'latitude' => 50.6372, 'longitude' => 3.0630],
-            ['nom' => 'Pharmacie Vieux-Lille',        'siret' => '88990011223344', 'email' => 'vieuxlille@pharma.fr',  'telephone' => '03 20 74 12 56', 'adresse' => '14 Rue de la Monnaie',       'code_postal' => '59800', 'ville' => 'Lille',      'statut' => 'prospect',       'commercial_id' => 2, 'latitude' => 50.6428, 'longitude' => 3.0699],
+            ['nom' => 'Pharmacie du Grand Place',     'siret' => '77889900112233', 'email' => 'grandplace@pharma.fr',  'telephone' => '03 20 54 33 11', 'adresse' => '8 Grand Place',              'code_postal' => '59000', 'ville' => 'Lille',           'statut' => 'client_actif',   'commercial_id' => 2, 'latitude' => 50.6372, 'longitude' => 3.0630],
+            ['nom' => 'Pharmacie Vieux-Lille',        'siret' => '88990011223344', 'email' => 'vieuxlille@pharma.fr',  'telephone' => '03 20 74 12 56', 'adresse' => '14 Rue de la Monnaie',       'code_postal' => '59800', 'ville' => 'Lille',           'statut' => 'prospect',       'commercial_id' => 2, 'latitude' => 50.6428, 'longitude' => 3.0699],
+
+            // Montpellier (zone 34)
+            ['nom' => 'Pharmacie de la Comédie',      'siret' => '10203040506070', 'email' => 'comedie@pharma.fr',     'telephone' => '04 67 58 10 11', 'adresse' => '1 Place de la Comédie',      'code_postal' => '34000', 'ville' => 'Montpellier',     'statut' => 'client_actif',   'commercial_id' => 4, 'latitude' => 43.6083, 'longitude' => 3.8800],
+            ['nom' => 'Pharmacie Antigone',           'siret' => '20304050607080', 'email' => 'antigone@pharma.fr',    'telephone' => '04 67 64 22 33', 'adresse' => '14 Place du Nombre d Or',    'code_postal' => '34000', 'ville' => 'Montpellier',     'statut' => 'prospect',       'commercial_id' => 4, 'latitude' => 43.6095, 'longitude' => 3.8930],
+
+            // Rennes (zone 35)
+            ['nom' => 'Pharmacie du Parlement',       'siret' => '30405060708090', 'email' => 'parlement@pharma.fr',   'telephone' => '02 99 79 10 10', 'adresse' => '2 Place du Parlement',       'code_postal' => '35000', 'ville' => 'Rennes',          'statut' => 'client_actif',   'commercial_id' => 3, 'latitude' => 48.1127, 'longitude' => -1.6745],
+            ['nom' => 'Pharmacie Sainte-Anne',        'siret' => '40506070809010', 'email' => 'saintanne@pharma.fr',   'telephone' => '02 99 38 55 66', 'adresse' => '9 Place Sainte-Anne',        'code_postal' => '35000', 'ville' => 'Rennes',          'statut' => 'client_actif',   'commercial_id' => 3, 'latitude' => 48.1143, 'longitude' => -1.6797],
+
+            // Grenoble (zone 38)
+            ['nom' => 'Pharmacie Victor Hugo',        'siret' => '50607080901020', 'email' => 'victorhugo@pharma.fr',  'telephone' => '04 76 47 10 22', 'adresse' => '10 Place Victor Hugo',       'code_postal' => '38000', 'ville' => 'Grenoble',        'statut' => 'client_actif',   'commercial_id' => 3, 'latitude' => 45.1875, 'longitude' => 5.7268],
+
+            // Toulon (zone 83)
+            ['nom' => 'Pharmacie du Port',            'siret' => '60708090102030', 'email' => 'port@pharma.fr',        'telephone' => '04 94 92 21 31', 'adresse' => '7 Avenue de la République', 'code_postal' => '83000', 'ville' => 'Toulon',          'statut' => 'client_actif',   'commercial_id' => 4, 'latitude' => 43.1258, 'longitude' => 5.9306],
+
+            // Dijon (zone 21)
+            ['nom' => 'Pharmacie des Ducs',           'siret' => '70809010203040', 'email' => 'ducs@pharma.fr',        'telephone' => '03 80 30 33 44', 'adresse' => '1 Place de la Libération',   'code_postal' => '21000', 'ville' => 'Dijon',           'statut' => 'client_actif',   'commercial_id' => 2, 'latitude' => 47.3220, 'longitude' => 5.0415],
+            ['nom' => 'Pharmacie Darcy',              'siret' => '80901020304050', 'email' => 'darcy@pharma.fr',       'telephone' => '03 80 30 48 59', 'adresse' => '5 Place Darcy',              'code_postal' => '21000', 'ville' => 'Dijon',           'statut' => 'prospect',       'commercial_id' => 2, 'latitude' => 47.3240, 'longitude' => 5.0385],
+
+            // Reims (zone 51)
+            ['nom' => 'Pharmacie de la Cathédrale',   'siret' => '91020304050607', 'email' => 'cathedrale51@pharma.fr','telephone' => '03 26 47 11 22', 'adresse' => '3 Place du Cardinal Luçon',  'code_postal' => '51100', 'ville' => 'Reims',           'statut' => 'client_actif',   'commercial_id' => 2, 'latitude' => 49.2534, 'longitude' => 4.0317],
+
+            // Rouen (zone 76)
+            ['nom' => 'Pharmacie du Vieux-Marché',    'siret' => '11020304050607', 'email' => 'vieuxmarche@pharma.fr', 'telephone' => '02 35 71 20 30', 'adresse' => '4 Place du Vieux-Marché',    'code_postal' => '76000', 'ville' => 'Rouen',           'statut' => 'client_actif',   'commercial_id' => 2, 'latitude' => 49.4419, 'longitude' => 1.0920],
+            ['nom' => 'Pharmacie Saint-Maclou',       'siret' => '21030405060708', 'email' => 'stmaclou@pharma.fr',    'telephone' => '02 35 88 42 11', 'adresse' => '10 Place Barthélémy',        'code_postal' => '76000', 'ville' => 'Rouen',           'statut' => 'prospect',       'commercial_id' => 2, 'latitude' => 49.4440, 'longitude' => 1.0951],
+
+            // Clermont-Ferrand (zone 63)
+            ['nom' => 'Pharmacie Jaude',              'siret' => '31040506070809', 'email' => 'jaude@pharma.fr',       'telephone' => '04 73 92 11 22', 'adresse' => '2 Place de Jaude',           'code_postal' => '63000', 'ville' => 'Clermont-Ferrand','statut' => 'client_actif',   'commercial_id' => 5, 'latitude' => 45.7797, 'longitude' => 3.0873],
+
+            // Nancy (zone 54)
+            ['nom' => 'Pharmacie Stanislas',          'siret' => '41050607080910', 'email' => 'stanislas@pharma.fr',   'telephone' => '03 83 35 12 23', 'adresse' => '6 Place Stanislas',          'code_postal' => '54000', 'ville' => 'Nancy',           'statut' => 'client_actif',   'commercial_id' => 2, 'latitude' => 48.6937, 'longitude' => 6.1823],
+
+            // Bordeaux 2ème (zone 33)
+            ['nom' => 'Pharmacie Sainte-Croix',       'siret' => '51060708091011', 'email' => 'stecroix@pharma.fr',    'telephone' => '05 56 52 33 44', 'adresse' => '11 Place Pierre Renaudel',   'code_postal' => '33800', 'ville' => 'Bordeaux',        'statut' => 'prospect',       'commercial_id' => 5, 'latitude' => 44.8374, 'longitude' => -0.5648],
+
+            // Angers (zone 49)
+            ['nom' => 'Pharmacie du Ralliement',      'siret' => '61070809101112', 'email' => 'ralliement@pharma.fr',  'telephone' => '02 41 88 10 20', 'adresse' => '3 Place du Ralliement',      'code_postal' => '49000', 'ville' => 'Angers',          'statut' => 'client_actif',   'commercial_id' => 3, 'latitude' => 47.4712, 'longitude' => -0.5527],
+
+            // Metz (zone 57)
+            ['nom' => 'Pharmacie de la République',   'siret' => '71080910111213', 'email' => 'republique57@pharma.fr','telephone' => '03 87 75 22 11', 'adresse' => '5 Place de la République',   'code_postal' => '57000', 'ville' => 'Metz',            'statut' => 'client_actif',   'commercial_id' => 2, 'latitude' => 49.1196, 'longitude' => 6.1757],
+
+            // Perpignan (zone 66)
+            ['nom' => 'Pharmacie de la Loge',         'siret' => '81090101112131', 'email' => 'loge@pharma.fr',        'telephone' => '04 68 34 11 22', 'adresse' => '7 Place de la Loge',         'code_postal' => '66000', 'ville' => 'Perpignan',       'statut' => 'prospect',       'commercial_id' => 4, 'latitude' => 42.6986, 'longitude' => 2.8950],
+
+            // Aix-en-Provence (zone 13)
+            ['nom' => 'Pharmacie du Cours Mirabeau',  'siret' => '91101112131415', 'email' => 'mirabeau@pharma.fr',    'telephone' => '04 42 38 10 20', 'adresse' => '20 Cours Mirabeau',          'code_postal' => '13100', 'ville' => 'Aix-en-Provence', 'statut' => 'client_actif',   'commercial_id' => 4, 'latitude' => 43.5265, 'longitude' => 5.4474],
+
+            // Caen (zone 14)
+            ['nom' => 'Pharmacie de l Abbaye',        'siret' => '10111213141516', 'email' => 'abbaye@pharma.fr',      'telephone' => '02 31 86 10 20', 'adresse' => '4 Place Reine Mathilde',     'code_postal' => '14000', 'ville' => 'Caen',            'statut' => 'client_actif',   'commercial_id' => 3, 'latitude' => 49.1829, 'longitude' => -0.3704],
+
+            // Tours (zone 37)
+            ['nom' => 'Pharmacie de la Place Plum',   'siret' => '20121314151617', 'email' => 'plumereau@pharma.fr',   'telephone' => '02 47 64 11 22', 'adresse' => '2 Place Plumereau',          'code_postal' => '37000', 'ville' => 'Tours',           'statut' => 'client_actif',   'commercial_id' => 3, 'latitude' => 47.3934, 'longitude' => 0.6848],
         ];
 
         foreach ($pharmacies as $data) {
