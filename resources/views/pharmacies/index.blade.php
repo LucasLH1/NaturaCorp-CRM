@@ -4,7 +4,7 @@
     </x-slot>
 
     <script>
-        window.pharmaciesFromLaravel = @json($pharmacies);
+        window.pharmaciesFromLaravel = @json($pharmacies->items());
     </script>
 
     <div class="p-6 bg-white shadow rounded"
@@ -112,4 +112,10 @@
             }
         }
     </script>
+
+    @if($pharmacies->hasPages())
+        <div class="mt-4">
+            {{ $pharmacies->links() }}
+        </div>
+    @endif
 </x-app-layout>

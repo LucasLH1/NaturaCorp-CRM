@@ -7,26 +7,24 @@ use App\Models\Produit;
 use App\Models\User;
 use App\Services\JournalService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use App\Services\GeocodageService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class PharmacieController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $user = auth()->user();
-        //on ne récupère que les pharmacies qui ont la même zone assignée au commercial
+
         if ($user->hasRole('admin')) {
-            $pharmacies = Pharmacie::with('zone')->get();
+            $pharmacies = Pharmacie::with('zone')->paginate(50);
         } elseif ($user->hasRole('commercial')) {
             $zoneIds = $user->zones->pluck('id');
             $pharmacies = Pharmacie::with('zone')
                 ->whereIn('zone_id', $zoneIds)
-                ->get();
+                ->paginate(50);
         } else {
             abort(403);
         }
@@ -39,24 +37,26 @@ class PharmacieController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'nom' => 'required|string',
-            'siret' => 'nullable|string|unique:pharmacies,siret',
-            'email' => 'nullable|email',
-            'telephone' => 'nullable|string',
-            'adresse' => 'required|string',
-            'code_postal' => 'required|string',
-            'ville' => 'required|string',
-            'statut' => 'required|in:prospect,client_actif,client_inactif',
-            'derniere_prise_contact' => 'nullable|date',
-            'commercial_id' => 'nullable|exists:users,id',
-        ]);
+        $this->authorize('create', Pharmacie::class);
 
+        $validated = $request->validate([
+            'nom'                    => 'required|string|max:255',
+            'siret'                  => 'nullable|digits:14|unique:pharmacies,siret',
+            'email'                  => 'nullable|email|max:255',
+            'telephone'              => 'nullable|string|max:20',
+            'adresse'                => 'required|string|max:255',
+            'code_postal'            => 'required|string|max:10',
+            'ville'                  => 'required|string|max:100',
+            'statut'                 => 'required|in:prospect,client_actif,client_inactif',
+            'derniere_prise_contact' => 'nullable|date',
+            'commercial_id'          => ['nullable', 'exists:users,id', function ($attr, $value, $fail) {
+                if ($value && !User::find($value)?->hasRole('commercial')) {
+                    $fail("L'utilisateur sélectionné n'est pas un commercial.");
+                }
+            }],
+        ]);
 
         $pharmacie = Pharmacie::create($validated);
 
@@ -68,41 +68,52 @@ class PharmacieController extends Controller
         return redirect()->route('pharmacies.index');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Pharmacie $pharmacy)
     {
-        // On charge les relations nécessaires
-        $pharmacy->load([
-            'commercial',        // User rattaché en tant que commercial
-            'documents',         // Documents joints liés à la pharmacie
-            'commandes'          // Commandes liées à cette pharmacie
-        ]);
+        $this->authorize('view', $pharmacy);
+
+        $user = auth()->user();
+        if ($user->hasRole('commercial')) {
+            $zoneIds = $user->zones->pluck('id');
+            if (!in_array($pharmacy->zone_id, $zoneIds->toArray())) {
+                abort(403, 'Cette pharmacie ne fait pas partie de votre zone.');
+            }
+        }
+
+        $pharmacy->load(['commercial', 'documents', 'commandes']);
 
         $produits = Produit::all();
 
-        return view('pharmacies.show', compact('pharmacy','produits'));
+        return view('pharmacies.show', compact('pharmacy', 'produits'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id)
+    public function update(Request $request, Pharmacie $pharmacie)
     {
-        $pharmacie = Pharmacie::findOrFail($id);
+        $this->authorize('update', $pharmacie);
+
+        $user = auth()->user();
+        if ($user->hasRole('commercial')) {
+            $zoneIds = $user->zones->pluck('id');
+            if (!in_array($pharmacie->zone_id, $zoneIds->toArray())) {
+                abort(403, 'Cette pharmacie ne fait pas partie de votre zone.');
+            }
+        }
 
         $validated = $request->validate([
-            'nom' => 'required|string',
-            'siret' => 'nullable|string|unique:pharmacies,siret,' . $pharmacie->id,
-            'email' => 'nullable|email',
-            'telephone' => 'nullable|string',
-            'adresse' => 'required|string',
-            'code_postal' => 'required|string',
-            'ville' => 'required|string',
-            'statut' => 'required|in:prospect,client_actif,client_inactif',
+            'nom'                    => 'required|string|max:255',
+            'siret'                  => ['nullable', 'digits:14', Rule::unique('pharmacies', 'siret')->ignore($pharmacie->id)],
+            'email'                  => 'nullable|email|max:255',
+            'telephone'              => 'nullable|string|max:20',
+            'adresse'                => 'required|string|max:255',
+            'code_postal'            => 'required|string|max:10',
+            'ville'                  => 'required|string|max:100',
+            'statut'                 => 'required|in:prospect,client_actif,client_inactif',
             'derniere_prise_contact' => 'nullable|date',
-            'commercial_id' => 'nullable|exists:users,id',
+            'commercial_id'          => ['nullable', 'exists:users,id', function ($attr, $value, $fail) {
+                if ($value && !User::find($value)?->hasRole('commercial')) {
+                    $fail("L'utilisateur sélectionné n'est pas un commercial.");
+                }
+            }],
         ]);
 
         $adresseModifiee =
@@ -117,28 +128,39 @@ class PharmacieController extends Controller
             app(GeocodageService::class)->geocoder($pharmacie);
             $pharmacie->save();
         }
+
         return redirect()->back()->with('success', 'Pharmacie mise à jour avec succès.');
     }
 
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id)
+    public function destroy(Pharmacie $pharmacie)
     {
-        $pharmacie = Pharmacie::findOrFail($id);
+        $this->authorize('delete', $pharmacie);
 
-        foreach ($pharmacie->documents as $doc) {
-            Storage::delete('public/' . $doc->chemin);
-            $doc->delete();
+        $user = auth()->user();
+        if ($user->hasRole('commercial')) {
+            $zoneIds = $user->zones->pluck('id');
+            if (!in_array($pharmacie->zone_id, $zoneIds->toArray())) {
+                abort(403, 'Cette pharmacie ne fait pas partie de votre zone.');
+            }
         }
 
-        $pharmacie->commandes()->delete();
-        $pharmacie->delete();
+        DB::transaction(function () use ($pharmacie) {
+            foreach ($pharmacie->documents as $doc) {
+                try {
+                    Storage::delete('public/' . $doc->chemin);
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::warning("Impossible de supprimer le fichier doc #{$doc->id}: {$e->getMessage()}");
+                }
+                $doc->delete();
+            }
 
-        JournalService::log('delete', "Suppression d'une pharmacie #{$pharmacie->id}");
+            $pharmacie->commandes()->delete();
+            $pharmacieId = $pharmacie->id;
+            $pharmacie->delete();
+
+            JournalService::log('delete', "Suppression d'une pharmacie #{$pharmacieId}");
+        });
 
         return redirect()->route('pharmacies.index')->with('success', 'Pharmacie supprimée avec succès.');
     }
-
 }

@@ -4,7 +4,7 @@
     </x-slot>
 
     <script>
-        window.commandesFromLaravel = @json($commandes);
+        window.commandesFromLaravel = @json($commandes->items());
         window.pharmaciesFromLaravel = @json($pharmacies);
         window.statutsFromLaravel = @json($statuts);
         window.produitsFromLaravel = @json($produits);
@@ -111,4 +111,10 @@
             };
         }
     </script>
+
+    @if($commandes->hasPages())
+        <div class="mt-4">
+            {{ $commandes->links() }}
+        </div>
+    @endif
 </x-app-layout>
