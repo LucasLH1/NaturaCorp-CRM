@@ -21,7 +21,9 @@ class Pharmacie extends Model
         'statut',
         'derniere_prise_contact',
         'commercial_id',
-        'zone_id'
+        'zone_id',
+        'latitude',
+        'longitude',
     ];
 
 
