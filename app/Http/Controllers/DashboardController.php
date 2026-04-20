@@ -53,10 +53,14 @@ class DashboardController extends Controller
 
     private function getStatsTemporaires(): array
     {
+        $moisExpr = DB::connection()->getDriverName() === 'pgsql'
+            ? "to_char(created_at, 'YYYY-MM')"
+            : "strftime('%Y-%m', created_at)";
+
         return [
-            'evolution_commandes' => Commande::select(DB::raw("to_char(created_at, 'YYYY-MM') as mois"), DB::raw("count(*) as total"))
+            'evolution_commandes' => Commande::select(DB::raw("{$moisExpr} as mois"), DB::raw("count(*) as total"))
                 ->groupBy('mois')->orderBy('mois')->pluck('total', 'mois'),
-            'evolution_pharmacies' => Pharmacie::select(DB::raw("to_char(created_at, 'YYYY-MM') as mois"), DB::raw("count(*) as total"))
+            'evolution_pharmacies' => Pharmacie::select(DB::raw("{$moisExpr} as mois"), DB::raw("count(*) as total"))
                 ->groupBy('mois')->orderBy('mois')->pluck('total', 'mois'),
         ];
     }
